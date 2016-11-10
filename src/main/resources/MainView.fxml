@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" 
+            xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ebook.fx.MainController">
+   <top>
+      <AnchorPane prefHeight="80.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="5.0" />
+         </padding>
+         <children>
+            <MenuBar layoutY="-3.0" prefHeight="34.0" prefWidth="1280.0" AnchorPane.bottomAnchor="49.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#importFolder" text="Import Folder..." />
+                        <MenuItem mnemonicParsing="false" onAction="#importFile" text="Import File..." />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <TextField id="search-box" fx:id="searchBox" layoutX="10.0" layoutY="40.0" prefHeight="28.0" prefWidth="275.0" promptText="Search..." />
+         </children>
+      </AnchorPane>
+   </top>
+   <right>
+      <AnchorPane prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="TOP_CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="710.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <ImageView fx:id="bookCover" fitHeight="386.0" fitWidth="252.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@default_cover.jpg" />
+                     </image>
+                  </ImageView>
+                  <Separator prefWidth="200.0" />
+                  <Label styleClass="title" text="Contents" />
+                  <ListView id="book-contents-list" fx:id="bookIndexList" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </right>
+   <center>
+      <AnchorPane BorderPane.alignment="CENTER">
+         <children>
+            <SplitPane dividerPositions="0.2" prefHeight="710.0" prefWidth="980.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <items>
+                  <AnchorPane>
+                     <children>
+                        <ListView fx:id="navigationList" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
+                  <AnchorPane>
+                     <children>
+                        <TableView fx:id="booksTable" prefHeight="708.0" prefWidth="482.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn fx:id="title" prefWidth="300" text="Title">
+                                <cellValueFactory><PropertyValueFactory property="title" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="author" prefWidth="200" text="Author">
+                                <cellValueFactory><PropertyValueFactory property="author" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="pages" text="Pages">
+                                <cellValueFactory><PropertyValueFactory property="pages" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="publisher" prefWidth="100" text="Publisher">
+                                <cellValueFactory><PropertyValueFactory property="publisher" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="tags" prefWidth="100" text="Tags">
+                                <cellValueFactory><PropertyValueFactory property="tags" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="added" text="Added">
+                                <cellValueFactory><PropertyValueFactory property="added" /></cellValueFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="length" text="Size MB">
+                                <cellValueFactory><PropertyValueFactory property="fileLength" /></cellValueFactory>
+                                <cellFactory><com.ebook.fx.view.DecimalFormattedTabelCellFactory /></cellFactory>
+                            </TableColumn>   
+                            <TableColumn fx:id="location" text="File">
+                                <cellValueFactory><PropertyValueFactory property="filePath" /></cellValueFactory>
+                            </TableColumn>   
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+               </items>
+            </SplitPane>
+         </children>
+         <padding>
+            <Insets left="5.0" />
+         </padding>
+      </AnchorPane>
+   </center>
+   <padding>
+      <Insets bottom="10.0" />
+   </padding>
+   <bottom>
+      <AnchorPane prefHeight="20.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
+         <children>
+            <ProgressBar fx:id="progressBar" prefWidth="100.0" progress="0.0" AnchorPane.rightAnchor="5.0" />
+         </children>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </AnchorPane>
+   </bottom>
+</BorderPane>

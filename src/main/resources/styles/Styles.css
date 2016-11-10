@@ -1,0 +1,171 @@
+/*.theme {
+    master-color: grey;
+    -fx-background-color: derive(master-color, -50%);
+    -fx-font-size: 14px
+}
+
+.split-pane {
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-background-color: derive(master-color, -50%);
+}
+
+.darkList {
+    -fx-background-color: derive(master-color, -60%);
+}
+
+.darkList .list-cell {
+    -fx-padding: 6 0 0 13;
+    -fx-background-color: derive(master-color, -60%);
+    -fx-text-fill: lightgrey;
+}
+
+.darkList .list-cell:focused {
+    -fx-text-fill: white;
+    -fx-background-color: #337ab7;
+}*/
+/*@font-face {
+    src: url("OpenSansCondBold.ttf");
+}*/
+
+/*.root {
+    -fx-base: rgb(50, 50, 50);
+    -fx-background: rgb(50, 50, 50);
+    -fx-control-inner-background:  rgb(50, 50, 50);
+}*/
+/*.text {
+    -fx-font-family: "Helvetica" , "Open Sans Condensed", sans-serif;
+}
+
+.tab {
+    -fx-background-color: linear-gradient(to top, -fx-base, derive(-fx-base,30%));
+}
+
+.menu-bar {
+    -fx-background-color: linear-gradient(to bottom, -fx-base, derive(-fx-base,30%));
+}
+
+.tool-bar:horizontal {
+    -fx-background-color:
+        linear-gradient(to bottom, derive(-fx-base,+50%), derive(-fx-base,-40%), derive(-fx-base,-20%));
+}
+
+.button {
+    -fx-background-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-color: -fx-hover-base;
+}
+
+.table-view {
+    -fx-table-cell-border-color:derive(-fx-base,+10%);
+    -fx-table-header-border-color:derive(-fx-base,+20%);
+}
+
+.split-pane:horizontal > * > .split-pane-divider {
+    -fx-border-color: transparent -fx-base transparent -fx-base;
+    -fx-background-color: transparent, derive(-fx-base,20%);
+    -fx-background-insets: 0, 0 1 0 1;
+}
+
+.my-gridpane {
+    -fx-background-color: radial-gradient(radius 100%, derive(-fx-base,20%), derive(-fx-base,-20%));
+}
+
+.separator-label {
+    -fx-text-fill: orange;
+}
+.list-view {
+    -fx-text-fill: lightgrey;
+    -fx-border-style: none;
+    -fx-padding: 1px;
+}*/
+.root{
+    -fx-base: black;
+    -fx-background-color: derive(-fx-base, 30%);
+    -fx-control-inner-background:  derive(-fx-base, 20%);
+    -fx-accent: #FD8D01;
+    -fx-focus-color: #FD8D01;
+}
+.text {
+    -fx-font-family: "Ubuntu Condensed";
+}
+.tab {
+    -fx-background-color: derive(-fx-base, 30%);
+}
+.table-view {
+    -fx-table-cell-border-color:derive(-fx-base,+10%);
+    -fx-table-header-border-color:derive(-fx-base,+20%);
+}
+.list-view {
+  -fx-background-insets: 0;
+  -fx-padding: 0;
+  -fx-font-size: 14px;
+}
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: derive(-fx-base, 30%);;
+    -fx-text-fill: -fx-accent;
+    -fx-effect: dropshadow( gaussian, black , 1, 0.0 , 0 , 1);
+}
+#book-contents-list{
+    -fx-control-inner-background: derive(-fx-base, 30%);
+}
+#book-contents-list .text{
+    /*-fx-effect: dropshadow( one-pass-box , white , 0, 0.0 , 0 , 1 );*/
+    -fx-effect: dropshadow( gaussian, black , 1, 0.0 , 0 , 1);
+}
+#search-box {
+    -fx-background-radius: 15px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: grey;
+    -fx-effect: innershadow( gaussian, black , 2, 0.1 , 2 , 2);
+}
+.title {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-accent;
+    -fx-effect: dropshadow( gaussian, black , 1, 0.0 , 0 , 1);
+}
+.image-view {
+    -fx-effect: dropshadow( two-pass-box, rgba(0,0,0,0.33) , 5, 0.5 , 2 , 2);
+}
+
+/* ************************
+* Tags Bar
+*******************************/
+.tags-bar {
+    /*-fx-border-color: blue;*/
+    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 3, 2, 2;
+    -fx-spacing: 3;
+    -fx-padding: 0.25em 0.416667em  0.333333em 0.416667em; /* 3 5 4 5 */
+    /*-fx-max-height: 30;*/
+    -fx-hgap: 5;
+    -fx-vgap: 5;
+}
+
+.tags-bar .tag {
+    -fx-background-color: #E0EAF1;
+    /*-fx-border-color: -fx-accent;*/
+    -fx-alignment: center;
+    -fx-padding: 5;
+    -fx-background-radius: 2;
+    -fx-text-fill: #3E6D8E;
+}
+.tags-bar .tag .text {
+    -fx-font-weight: bold;
+}
+.tags-bar > .text-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-prompt-text-fill: grey;
+    /*-fx-text-box-border: transparent;*/
+}
+.tags-bar > .text-field:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    /*-fx-text-box-border: transparent;*/
+}
