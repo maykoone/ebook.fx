@@ -5,7 +5,10 @@
  */
 package com.ebook.fx;
 
-import com.ebook.fx.util.ImageCache;
+import com.ebook.fx.core.di.FXMLLoaderProducer;
+import com.ebook.fx.core.util.ImageCache;
+import com.ebook.fx.ui.controllers.MainController;
+import com.ebook.fx.ui.views.MainView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.jboss.weld.environment.se.Weld;
@@ -22,7 +25,10 @@ public class Startup extends Application {
     @Override
     public void init() throws Exception {
         System.out.println("Initializing Weld...");
-        weld = new Weld();
+        weld = new Weld().disableDiscovery()
+//                .packages(MainApp.class, MainController.class,
+//                        MainView.class, FXMLLoaderProducer.class, ImageCache.class)
+                .addPackage(true, MainApp.class);
     }
 
     @Override
@@ -36,7 +42,7 @@ public class Startup extends Application {
     @Override
     public void stop() throws Exception {
         System.out.println("Application stoping...");
-        ImageCache.getInstance().clear();
+//        ImageCache.getInstance().clear();
         weld.shutdown();
     }
 

@@ -3,17 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx;
+package com.ebook.fx.ui.controllers;
 
-import com.ebook.fx.model.Book;
-import com.ebook.fx.util.ImageCache;
-import com.ebook.fx.view.TagsBar;
+import com.ebook.fx.core.model.Book;
+import com.ebook.fx.core.util.ImageCache;
+import com.ebook.fx.ui.views.TagsBar;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javax.inject.Inject;
 
 /**
  *
@@ -31,6 +32,8 @@ public class BookEditController extends AbstractController {
     private TextField publisherField;
     @FXML
     private ImageView bookCover;
+    @Inject
+    private ImageCache imageCache;
 
     private ObjectProperty<Book> currentBook;
     private ObjectProperty<Book> selectedBook;
@@ -40,22 +43,20 @@ public class BookEditController extends AbstractController {
         this.currentBook = new SimpleObjectProperty<>();
         this.selectedBook = new SimpleObjectProperty<>();
         this.selectedBook.addListener((observable, oldValue, newValue) -> {
-            if(newValue != null) {
+            if (newValue != null) {
                 setBook(newValue);
             }
         });
     }
 
-    void setBook(Book selectedBook) {
-//        this.selectedBook.set(selectedBook);
-
+    private void setBook(Book selectedBook) {
         titleField.setText(selectedBook.getTitle());
         authorField.setText(selectedBook.getAuthor());
         publisherField.setText(selectedBook.getPublisher());
 
         selectedBook.getTags().forEach(tag -> tagsField.addTag(tag));
 
-        ImageCache.getInstance().getAsync(selectedBook.getFilePath()).thenAcceptAsync(bookCover::setImage);
+        imageCache.getAsync(selectedBook.getFilePath()).thenAcceptAsync(bookCover::setImage);
     }
 
     @FXML

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx;
+package com.ebook.fx.ui.views;
 
+import com.ebook.fx.MainApp;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,8 +13,8 @@ import javax.inject.Inject;
  *
  * @author maykoone
  */
-//@ApplicationScoped
-class MainView extends AbstractView {
+@ApplicationScoped
+public class MainView extends AbstractView {
     
     @Inject
     public MainView(MainApp application) {

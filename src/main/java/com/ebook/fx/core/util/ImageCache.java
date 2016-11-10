@@ -3,27 +3,29 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.util;
+package com.ebook.fx.core.util;
 
-import com.ebook.fx.command.LoadPdfCoverImageCommand;
+import com.ebook.fx.core.command.LoadPdfCoverImageCommand;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 
 /**
  *
  * @author maykoone
  */
+@Singleton
 public class ImageCache {
 
     private Map<String, Image> cachedImages;
-    private static ImageCache instance = new ImageCache();
     private ExecutorService imageLoadExecutor;
 
     public ImageCache() {
@@ -35,15 +37,7 @@ public class ImageCache {
         Task<Image> task = new Task<Image>() {
             @Override
             protected Image call() throws Exception {
-                Image image = cachedImages.get(url);
-                if (image == null) {
-                    LoadPdfCoverImageCommand command = new LoadPdfCoverImageCommand(url);
-                    image = command.get();
-                    if (!Objects.equals(image, LoadPdfCoverImageCommand.defaultImage)) {
-                        cachedImages.put(url, image);
-                    }
-                }
-                return image;
+                return imageSupplier.apply(url);
             }
         };
 
@@ -52,24 +46,12 @@ public class ImageCache {
     }
 
     public CompletableFuture<Image> getAsync(String url) {
-        return CompletableFuture.supplyAsync(() -> {
-            Image image = cachedImages.get(url);
-            if (image == null) {
-                LoadPdfCoverImageCommand command = new LoadPdfCoverImageCommand(url);
-                image = command.get();
-                if (!Objects.equals(image, LoadPdfCoverImageCommand.defaultImage)) {
-                    cachedImages.put(url, image);
-                }
-            }
-            return image;
-        });
+        return CompletableFuture.supplyAsync(() -> imageSupplier.apply(url));
     }
 
-    public static ImageCache getInstance() {
-        return instance;
-    }
-
+    @PreDestroy
     public void clear() {
+        System.out.println("@PreDestroy ImageCache");
         cachedImages.clear();
         if (!imageLoadExecutor.isShutdown()) {
             imageLoadExecutor.shutdown();
@@ -80,5 +62,17 @@ public class ImageCache {
     protected void finalize() throws Throwable {
         clear();
     }
+
+    private Function<String, Image> imageSupplier = (String url) -> {
+        Image image = cachedImages.get(url);
+        if (image == null) {
+            LoadPdfCoverImageCommand command = new LoadPdfCoverImageCommand(url);
+            image = command.get();
+            if (!Objects.equals(image, LoadPdfCoverImageCommand.defaultImage)) {
+                cachedImages.put(url, image);
+            }
+        }
+        return image;
+    };
 
 }

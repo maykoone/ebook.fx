@@ -3,17 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx;
+package com.ebook.fx.ui.controllers;
 
-import com.ebook.fx.command.LoadPdfCoverImageCommand;
-import com.ebook.fx.model.Book;
-import com.ebook.fx.task.ImportFileTask;
-import com.ebook.fx.util.ImageCache;
+import com.ebook.fx.MainApp;
+import com.ebook.fx.ui.views.BookEditView;
+import com.ebook.fx.core.command.LoadPdfCoverImageCommand;
+import com.ebook.fx.core.model.Book;
+import com.ebook.fx.core.task.ImportFileTask;
+import com.ebook.fx.core.util.ImageCache;
+import com.ebook.fx.ui.views.MainView;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
@@ -33,12 +38,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 
 /**
  *
  * @author maykoone
  */
-public class MainController extends AbstractController {
+public class MainController {
 
     @FXML
     private TableView<Book> booksTable;
@@ -53,6 +60,18 @@ public class MainController extends AbstractController {
     private ImageView bookCover;
     @FXML
     private ProgressBar progressBar;
+    @Inject
+    private Instance<BookEditView> bookEditViewSource;
+    @Inject
+    private MainView view;
+    @Inject
+    private MainApp application;
+    @Inject
+    private ImageCache imageCache;
+    @FXML
+    private ResourceBundle resources;
+    @Inject
+    private Logger logger;
 
     public MainController() {
         books = FXCollections.observableArrayList();
@@ -62,36 +81,15 @@ public class MainController extends AbstractController {
     private void initialize() {
         navigationList.setItems(FXCollections.observableArrayList("Library",
                 "Favorites", "Recents"));
-//        bookIndexList.setItems(FXCollections.observableArrayList("I.Introduction",
-//                "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5"));
 
         progressBar.setVisible(false);
 
-        MenuItem mEdit = new MenuItem("Edit");
-        mEdit.setOnAction(e -> {
-            System.out.println("edit menu clicked " + booksTable.getSelectionModel().getSelectedItem().getTitle());
-            editBookAction();
-        });
-        MenuItem mOpen = new MenuItem("Open");
-        mOpen.setOnAction(e -> {
-            EventQueue.invokeLater(() -> {
-                try {
-                    Desktop.getDesktop().open(new File(booksTable.getSelectionModel().getSelectedItem().getFilePath()));
-                } catch (IOException ex) {
-                    Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, "Open file fail.", ex);
-                }
-            });
-        });
-        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen);
-        booksTable.setContextMenu(tableMenu);
+        booksTable.setContextMenu(initBooksTableContextMenu());
 
         booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
             if (newValue != null) {
                 if (newValue.getFilePath() != null) {
-//                    Task<Image> loadImageTask = ImageCache.getInstance().get(newValue.getFilePath());
-//                    loadImageTask.setOnSucceeded(e -> bookCover.setImage(loadImageTask.getValue()));
-
-                    ImageCache.getInstance().getAsync(newValue.getFilePath()).thenAcceptAsync(bookCover::setImage);
+                    imageCache.getAsync(newValue.getFilePath()).thenAcceptAsync(bookCover::setImage);
                 } else {
                     bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
                 }
@@ -100,23 +98,41 @@ public class MainController extends AbstractController {
         });
     }
 
+    private ContextMenu initBooksTableContextMenu() {
+        MenuItem mEdit = new MenuItem(resources.getString("label.edit"));
+        mEdit.setOnAction(e -> {
+            editBookAction();
+        });
+        MenuItem mOpen = new MenuItem(resources.getString("label.open"));
+        mOpen.setOnAction(e -> {
+            EventQueue.invokeLater(() -> {
+                try {
+                    Desktop.getDesktop().open(new File(booksTable.getSelectionModel().getSelectedItem().getFilePath()));
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Open file fail.", ex);
+                }
+            });
+        });
+        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen);
+        return tableMenu;
+    }
+
     @FXML
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        File directory = chooser.showDialog(getApplication().getPrimaryStage());
+        File directory = chooser.showDialog(application.getPrimaryStage());
 
         if (directory != null) {
-            System.out.println("setting directory to : " + directory.getAbsolutePath());
             //only pdf
             ImportFileTask importTask = new ImportFileTask(directory);
 
             Alert importInfo = new Alert(Alert.AlertType.CONFIRMATION);
-            importInfo.setTitle("Import folder...");
-            importInfo.setContentText("There's " + importTask.getNumberOfFiles() + " to be imported. Do you want to continue?");
+            importInfo.setTitle(resources.getString("dialog.import.folder.title"));
+            importInfo.setContentText(MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
             Optional<ButtonType> option = importInfo.showAndWait();
             if (option.get().equals(ButtonType.OK)) {
-                System.out.println("Perform import");
+                logger.log(Level.INFO, "Perform import");
                 importTask.setOnSucceeded(e -> {
                     booksTable.getItems().addAll(importTask.getValue());
                     hideProgressBar();
@@ -124,7 +140,7 @@ public class MainController extends AbstractController {
                 showProgressBar(importTask);
                 new Thread(importTask).start();
             } else {
-                System.out.println("do nothing");
+                logger.log(Level.INFO, "Do nothing");
             }
         }
 
@@ -135,7 +151,7 @@ public class MainController extends AbstractController {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(new File(System.getProperty("user.home")));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
-        File file = chooser.showOpenDialog(getApplication().getPrimaryStage());
+        File file = chooser.showOpenDialog(application.getPrimaryStage());
 
         if (file != null) {
             ImportFileTask task = new ImportFileTask(file);
@@ -151,8 +167,8 @@ public class MainController extends AbstractController {
     @FXML
     private void aboutAction(ActionEvent event) {
         Alert about = new Alert(Alert.AlertType.INFORMATION);
-        about.setTitle("About");
-        about.setContentText("This is a about window!");
+        about.setTitle(resources.getString("dialog.about.title"));
+        about.setContentText(resources.getString("dialog.about.msg"));
         about.showAndWait();
 
     }
@@ -161,9 +177,8 @@ public class MainController extends AbstractController {
     private void editBookAction() {
         Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
         if (selectedBook != null) {
-            MainApp.BookEditView bookEditView = new MainApp.BookEditView(getApplication());
+            BookEditView bookEditView = bookEditViewSource.get();
             BookEditController bookEditController = bookEditView.getController();
-//            bookEditController.setBook(selectedBook);
             bookEditController.selectedBookProperty().bind(booksTable.getSelectionModel().selectedItemProperty());
             bookEditController.currentBookProperty().addListener((observable, oldBook, newBook) -> {
                 if (newBook != null) {

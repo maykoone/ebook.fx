@@ -13,9 +13,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<?import com.ebook.fx.view.TagsBar?>
+<?import com.ebook.fx.ui.views.TagsBar?>
 
-<AnchorPane prefHeight="629.0" prefWidth="827.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ebook.fx.BookEditController">
+<AnchorPane prefHeight="629.0" prefWidth="827.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ebook.fx.ui.controllers.BookEditController">
     <children>
       <HBox fillHeight="false" layoutX="10.0" layoutY="10.0" spacing="20.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>

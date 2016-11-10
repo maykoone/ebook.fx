@@ -20,9 +20,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import com.ebook.fx.ui.views.DecimalFormattedTabelCellFactory?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" 
-            xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ebook.fx.MainController">
+            xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ebook.fx.ui.controllers.MainController">
    <top>
       <AnchorPane prefHeight="80.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <padding>
@@ -105,7 +106,7 @@
                             </TableColumn>   
                             <TableColumn fx:id="length" text="Size MB">
                                 <cellValueFactory><PropertyValueFactory property="fileLength" /></cellValueFactory>
-                                <cellFactory><com.ebook.fx.view.DecimalFormattedTabelCellFactory /></cellFactory>
+                                <cellFactory><DecimalFormattedTabelCellFactory /></cellFactory>
                             </TableColumn>   
                             <TableColumn fx:id="location" text="File">
                                 <cellValueFactory><PropertyValueFactory property="filePath" /></cellValueFactory>

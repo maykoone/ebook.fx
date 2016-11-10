@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.model;
+package com.ebook.fx.core.model;
 
 import java.time.LocalDate;
 import java.util.List;

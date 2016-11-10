@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.command;
+package com.ebook.fx.core.command;
 
 import com.ebook.fx.MainApp;
 import com.sun.pdfview.PDFFile;

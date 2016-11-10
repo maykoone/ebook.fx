@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.task;
+package com.ebook.fx.core.task;
 
-import com.ebook.fx.model.Book;
-import com.ebook.fx.model.BookModel;
+import com.ebook.fx.core.model.Book;
+import com.ebook.fx.core.model.BookModel;
 import com.sun.pdfview.OutlineNode;
 import com.sun.pdfview.PDFFile;
 import java.io.File;

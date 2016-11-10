@@ -1,4 +1,4 @@
-package com.ebook.fx.model;
+package com.ebook.fx.core.model;
 
 import java.time.LocalDate;
 import java.util.List;

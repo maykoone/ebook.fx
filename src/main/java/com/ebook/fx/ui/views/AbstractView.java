@@ -1,40 +1,43 @@
-package com.ebook.fx;
+package com.ebook.fx.ui.views;
 
+import com.ebook.fx.ui.controllers.AbstractController;
+import com.ebook.fx.MainApp;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  *
  * @author maykoone
  */
-@ApplicationScoped
-public class AbstractView {
+public abstract class AbstractView {
 
+    @Inject
     protected FXMLLoader fxmlLoader;
     private final String viewName;
     private static final String FXML_SUFFIX = ".fxml";
     private Stage currentStage;
 
     protected MainApp application;
+    @Inject
     protected ResourceBundle bundle;
 
     public AbstractView(MainApp application) {
+        System.out.println("intantiate abstractView");
         this.viewName = this.getClass().getSimpleName();
         this.application = application;
     }
 
     private void loadFromFXML() {
         try {
-            if (fxmlLoader == null) {
-                bundle = application.getResourceBundle();
-                final URL fxmlPath = getClass().getResource("/" + viewName + FXML_SUFFIX);
-                this.fxmlLoader = bundle == null ? new FXMLLoader(fxmlPath) : new FXMLLoader(fxmlPath, bundle);
+            if (!isFxmlLoaded()) {
+//                bundle = application.getResourceBundle();
+//                final URL fxmlPath = getClass().getResource("/fxml/" + viewName + FXML_SUFFIX);
+//                this.fxmlLoader = bundle == null ? new FXMLLoader(fxmlPath) : new FXMLLoader(fxmlPath, bundle);
                 fxmlLoader.load();
 
                 initAbstractController();
@@ -42,6 +45,10 @@ public class AbstractView {
         } catch (IOException ex) {
             throw new IllegalStateException("Can't load the view with name " + viewName, ex);
         }
+    }
+
+    private boolean isFxmlLoaded() {
+        return fxmlLoader != null && fxmlLoader.getRoot() != null;
     }
 
     protected Parent getView() {
@@ -85,7 +92,6 @@ public class AbstractView {
         return viewName;
     }
 
-//    Supplier<ResourceBundle> resourceSupplier = () -> ResourceBundle.getBundle(DEFAULT_RESOURCE_BUNDLE);
     public Stage getCurrentStage() {
         return currentStage != null ? currentStage : application.getPrimaryStage();
     }

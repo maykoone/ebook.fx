@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.view;
+package com.ebook.fx.ui.views;
 
 import java.awt.print.Book;
 import java.math.RoundingMode;

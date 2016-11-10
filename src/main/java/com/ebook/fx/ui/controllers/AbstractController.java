@@ -3,13 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx;
+package com.ebook.fx.ui.controllers;
+
+import com.ebook.fx.MainApp;
+import com.ebook.fx.ui.views.AbstractView;
 
 /**
  *
  * @author maykoone
  */
-public class AbstractController {
+public abstract class AbstractController {
 
     protected MainApp application;
     protected AbstractView view;

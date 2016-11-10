@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ebook.fx.view;
+package com.ebook.fx.ui.views;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
