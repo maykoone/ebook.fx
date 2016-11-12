@@ -32,10 +32,10 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   </rowConstraints>
                   <children>
-                      <Label text="Title" />
-                      <Label text="Author" GridPane.rowIndex="1" />
-                      <Label text="Publisher" GridPane.rowIndex="2" />
-                      <Label text="Tags" GridPane.rowIndex="3" />
+                      <Label text="%label.book.title" />
+                      <Label text="%label.book.author" GridPane.rowIndex="1" />
+                      <Label text="%label.book.publisher" GridPane.rowIndex="2" />
+                      <Label text="%label.book.tags" GridPane.rowIndex="3" />
                       <TextField fx:id="titleField" GridPane.columnIndex="1" />
                       <TextField fx:id="authorField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                       <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -54,8 +54,8 @@
         
         <ButtonBar AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
             <buttons>
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="OK" />
-                <Button mnemonicParsing="false" onAction="#handleCancel" prefWidth="120.0" text="Cancel" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="%button.save" />
+                <Button mnemonicParsing="false" onAction="#handleCancel" prefWidth="120.0" text="%button.cancel" />
             </buttons>
         </ButtonBar>
     </children>

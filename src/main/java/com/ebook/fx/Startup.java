@@ -5,10 +5,6 @@
  */
 package com.ebook.fx;
 
-import com.ebook.fx.core.di.FXMLLoaderProducer;
-import com.ebook.fx.core.util.ImageCache;
-import com.ebook.fx.ui.controllers.MainController;
-import com.ebook.fx.ui.views.MainView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.jboss.weld.environment.se.Weld;
@@ -26,8 +22,8 @@ public class Startup extends Application {
     public void init() throws Exception {
         System.out.println("Initializing Weld...");
         weld = new Weld().disableDiscovery()
-//                .packages(MainApp.class, MainController.class,
-//                        MainView.class, FXMLLoaderProducer.class, ImageCache.class)
+                //                .packages(MainApp.class, MainController.class,
+                //                        MainView.class, FXMLLoaderProducer.class, ImageCache.class)
                 .addPackage(true, MainApp.class);
     }
 

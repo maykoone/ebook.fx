@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.core.task;
 
 import com.ebook.fx.core.model.Book;
@@ -33,7 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class ImportFileTask extends Task<ObservableList<Book>> {
 
     private final File sourceFile;
-    private final AtomicLong progress = new AtomicLong();
+    private final AtomicLong progressCount = new AtomicLong();
     private long numberOfFiles;
     private Pattern ptrn = Pattern.compile("([^\\s]+(\\.(?i)(pdf))$)");
     private Stream<File> filesToImport;
@@ -78,7 +73,7 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
                 }
             }
 
-            updateProgress(progress.incrementAndGet(), numberOfFiles);
+            updateProgress(progressCount.incrementAndGet(), numberOfFiles);
             fc.close();
             return book;
         } catch (Exception e) {

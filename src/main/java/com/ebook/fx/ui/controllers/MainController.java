@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.ui.controllers;
 
 import com.ebook.fx.MainApp;
@@ -79,26 +74,15 @@ public class MainController {
 
     @FXML
     private void initialize() {
-        navigationList.setItems(FXCollections.observableArrayList("Library",
-                "Favorites", "Recents"));
+        navigationList.setItems(FXCollections.observableArrayList(resources.getString("menu.library"),
+                resources.getString("menu.favorites")));
 
         progressBar.setVisible(false);
+        initBooksTable();
 
-        booksTable.setContextMenu(initBooksTableContextMenu());
-
-        booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
-            if (newValue != null) {
-                if (newValue.getFilePath() != null) {
-                    imageCache.getAsync(newValue.getFilePath()).thenAcceptAsync(bookCover::setImage);
-                } else {
-                    bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
-                }
-                bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
-            }
-        });
     }
 
-    private ContextMenu initBooksTableContextMenu() {
+    private void initBooksTable() {
         MenuItem mEdit = new MenuItem(resources.getString("label.edit"));
         mEdit.setOnAction(e -> {
             editBookAction();
@@ -114,7 +98,18 @@ public class MainController {
             });
         });
         ContextMenu tableMenu = new ContextMenu(mEdit, mOpen);
-        return tableMenu;
+        booksTable.setContextMenu(tableMenu);
+
+        booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
+            if (newValue != null) {
+                if (newValue.getFilePath() != null) {
+                    imageCache.getAsync(newValue.getFilePath()).thenAcceptAsync(bookCover::setImage);
+                } else {
+                    bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
+                }
+                bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
+            }
+        });
     }
 
     @FXML
@@ -127,11 +122,9 @@ public class MainController {
             //only pdf
             ImportFileTask importTask = new ImportFileTask(directory);
 
-            Alert importInfo = new Alert(Alert.AlertType.CONFIRMATION);
-            importInfo.setTitle(resources.getString("dialog.import.folder.title"));
-            importInfo.setContentText(MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
-            Optional<ButtonType> option = importInfo.showAndWait();
-            if (option.get().equals(ButtonType.OK)) {
+            Optional<ButtonType> option = application.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
+                    MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
+            option.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
                 logger.log(Level.INFO, "Perform import");
                 importTask.setOnSucceeded(e -> {
                     booksTable.getItems().addAll(importTask.getValue());
@@ -139,9 +132,7 @@ public class MainController {
                 });
                 showProgressBar(importTask);
                 new Thread(importTask).start();
-            } else {
-                logger.log(Level.INFO, "Do nothing");
-            }
+            });
         }
 
     }
@@ -170,7 +161,6 @@ public class MainController {
         about.setTitle(resources.getString("dialog.about.title"));
         about.setContentText(resources.getString("dialog.about.msg"));
         about.showAndWait();
-
     }
 
     @FXML

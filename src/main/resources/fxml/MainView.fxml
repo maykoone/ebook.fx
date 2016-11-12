@@ -32,22 +32,22 @@
          <children>
             <MenuBar layoutY="-3.0" prefHeight="34.0" prefWidth="1280.0" AnchorPane.bottomAnchor="49.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu mnemonicParsing="false" text="%menu.file">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#importFolder" text="Import Folder..." />
-                        <MenuItem mnemonicParsing="false" onAction="#importFile" text="Import File..." />
+                    <MenuItem mnemonicParsing="false" onAction="#importFolder" text="%menu.import.folder" />
+                        <MenuItem mnemonicParsing="false" onAction="#importFile" text="%menu.import.file" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" text="Close" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu mnemonicParsing="false" text="%menu.help">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="About" />
+                    <MenuItem mnemonicParsing="false" onAction="#aboutAction" text="%menu.about" />
                   </items>
                 </Menu>
               </menus>
             </MenuBar>
-            <TextField id="search-box" fx:id="searchBox" layoutX="10.0" layoutY="40.0" prefHeight="28.0" prefWidth="275.0" promptText="Search..." />
+            <TextField id="search-box" fx:id="searchBox" layoutX="10.0" layoutY="40.0" prefHeight="28.0" prefWidth="275.0" promptText="%label.search" />
          </children>
       </AnchorPane>
    </top>
@@ -65,7 +65,7 @@
                      </image>
                   </ImageView>
                   <Separator prefWidth="200.0" />
-                  <Label styleClass="title" text="Contents" />
+                  <Label styleClass="title" text="%label.book.contents" />
                   <ListView id="book-contents-list" fx:id="bookIndexList" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
@@ -86,29 +86,29 @@
                      <children>
                         <TableView fx:id="booksTable" prefHeight="708.0" prefWidth="482.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <columns>
-                            <TableColumn fx:id="title" prefWidth="300" text="Title">
+                            <TableColumn fx:id="title" prefWidth="300" text="%label.book.title">
                                 <cellValueFactory><PropertyValueFactory property="title" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="author" prefWidth="200" text="Author">
+                            <TableColumn fx:id="author" prefWidth="200" text="%label.book.author">
                                 <cellValueFactory><PropertyValueFactory property="author" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="pages" text="Pages">
+                            <TableColumn fx:id="pages" text="%label.book.pages">
                                 <cellValueFactory><PropertyValueFactory property="pages" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="publisher" prefWidth="100" text="Publisher">
+                            <TableColumn fx:id="publisher" prefWidth="100" text="%label.book.publisher">
                                 <cellValueFactory><PropertyValueFactory property="publisher" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="tags" prefWidth="100" text="Tags">
+                            <TableColumn fx:id="tags" prefWidth="100" text="%label.book.tags">
                                 <cellValueFactory><PropertyValueFactory property="tags" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="added" text="Added">
+                            <TableColumn fx:id="added" text="%label.book.added">
                                 <cellValueFactory><PropertyValueFactory property="added" /></cellValueFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="length" text="Size MB">
+                            <TableColumn fx:id="length" text="%label.book.size">
                                 <cellValueFactory><PropertyValueFactory property="fileLength" /></cellValueFactory>
                                 <cellFactory><DecimalFormattedTabelCellFactory /></cellFactory>
                             </TableColumn>   
-                            <TableColumn fx:id="location" text="File">
+                            <TableColumn fx:id="location" text="%label.book.file">
                                 <cellValueFactory><PropertyValueFactory property="filePath" /></cellValueFactory>
                             </TableColumn>   
                           </columns>
