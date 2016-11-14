@@ -27,7 +27,6 @@ public abstract class AbstractView {
     protected ResourceBundle bundle;
 
     public AbstractView(MainApp application) {
-        System.out.println("intantiate abstractView");
         this.viewName = this.getClass().getSimpleName();
         this.application = application;
     }

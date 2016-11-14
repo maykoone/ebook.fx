@@ -20,7 +20,6 @@ public class BookEditView extends AbstractView {
     @Inject
     public BookEditView(MainApp application) {
         super(application);
-        System.out.println("intantiate bookEditView");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.ebook.fx.core.task;
 
 import com.ebook.fx.core.model.Book;
-import com.ebook.fx.core.model.BookModel;
+import com.ebook.fx.core.services.BookRepository;
 import com.sun.pdfview.OutlineNode;
 import com.sun.pdfview.PDFFile;
 import java.io.File;
@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,7 +35,12 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     private Stream<File> filesToImport;
 
     public ImportFileTask(File sourceFile) {
+        this(sourceFile, Function.identity());
+    }
+
+    public ImportFileTask(File sourceFile, Function<Book, Book> save) {
         this.sourceFile = sourceFile;
+        this.save = save;
         prepare();
     }
 
@@ -42,8 +48,10 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     protected ObservableList<Book> call() throws Exception {
         return filesToImport
                 .map(this::convertToBook)
+                .map(save)
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
     }
+    private Function<Book, Book> save;
 
     private Book convertToBook(File file) {
         try {
@@ -52,8 +60,8 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
             ByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
             PDFFile pdf = new PDFFile(buf);
-            BookModel book
-                    = new BookModel(Optional.ofNullable(pdf.getStringMetadata("Title")).filter(s -> !s.isEmpty()).orElse(file.getName().replace(".pdf", "")),
+            Book book
+                    = new Book(Optional.ofNullable(pdf.getStringMetadata("Title")).filter(s -> !s.isEmpty()).orElse(file.getName().replace(".pdf", "")),
                             pdf.getStringMetadata("Author"));
 
             book.setFileLength((double) file.length() / 1048576);
@@ -78,7 +86,7 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
             return book;
         } catch (Exception e) {
 //            System.out.println("Falha ao importar pdf " + file.getName());
-            Book book = new BookModel(file.getName().replace(".pdf", ""), "");
+            Book book = new Book(file.getName().replace(".pdf", ""), "");
             book.setFilePath(file.getAbsolutePath());
             book.setFileLength((double) file.length() / 1048576);
             return book;

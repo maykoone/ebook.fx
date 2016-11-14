@@ -66,7 +66,7 @@ public class BookEditController extends AbstractController {
         editedBook.setAuthor(authorField.getText());
         editedBook.setPublisher(publisherField.getText());
         editedBook.setTags(tagsField.getTags());
-        currentBook.set(editedBook);
+        this.currentBook.set(editedBook);
         view.getCurrentStage().close();
     }
 

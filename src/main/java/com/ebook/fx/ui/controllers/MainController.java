@@ -4,6 +4,7 @@ import com.ebook.fx.MainApp;
 import com.ebook.fx.ui.views.BookEditView;
 import com.ebook.fx.core.command.LoadPdfCoverImageCommand;
 import com.ebook.fx.core.model.Book;
+import com.ebook.fx.core.services.BookRepository;
 import com.ebook.fx.core.task.ImportFileTask;
 import com.ebook.fx.core.util.ImageCache;
 import com.ebook.fx.ui.views.MainView;
@@ -67,18 +68,19 @@ public class MainController {
     private ResourceBundle resources;
     @Inject
     private Logger logger;
-
-    public MainController() {
-        books = FXCollections.observableArrayList();
-    }
-
+    @Inject
+    private BookRepository repository;
+    
     @FXML
     private void initialize() {
+        books = FXCollections.observableArrayList();
         navigationList.setItems(FXCollections.observableArrayList(resources.getString("menu.library"),
                 resources.getString("menu.favorites")));
+        navigationList.getSelectionModel().select(resources.getString("menu.library"));
 
         progressBar.setVisible(false);
         initBooksTable();
+        this.books.addAll(repository.list());
 
     }
 
@@ -110,6 +112,7 @@ public class MainController {
                 bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
             }
         });
+        booksTable.setItems(this.books);
     }
 
     @FXML
@@ -120,14 +123,14 @@ public class MainController {
 
         if (directory != null) {
             //only pdf
-            ImportFileTask importTask = new ImportFileTask(directory);
+            ImportFileTask importTask = new ImportFileTask(directory, book -> repository.save(book));
 
             Optional<ButtonType> option = application.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
                     MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
             option.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
                 logger.log(Level.INFO, "Perform import");
                 importTask.setOnSucceeded(e -> {
-                    booksTable.getItems().addAll(importTask.getValue());
+                    books.addAll(importTask.getValue());
                     hideProgressBar();
                 });
                 showProgressBar(importTask);
@@ -145,9 +148,9 @@ public class MainController {
         File file = chooser.showOpenDialog(application.getPrimaryStage());
 
         if (file != null) {
-            ImportFileTask task = new ImportFileTask(file);
+            ImportFileTask task = new ImportFileTask(file, book -> repository.save(book));
             task.setOnSucceeded(e -> {
-                booksTable.getItems().addAll(task.getValue());
+                books.addAll(task.getValue());
                 hideProgressBar();
             });
             showProgressBar(task);
@@ -172,6 +175,7 @@ public class MainController {
             bookEditController.selectedBookProperty().bind(booksTable.getSelectionModel().selectedItemProperty());
             bookEditController.currentBookProperty().addListener((observable, oldBook, newBook) -> {
                 if (newBook != null) {
+                    repository.save(newBook);
                     booksTable.refresh();
                 }
             });
@@ -181,11 +185,12 @@ public class MainController {
 
     private void showProgressBar(Worker<?> task) {
         progressBar.progressProperty().bind(task.progressProperty());
-        progressBar.setVisible(true);
+        progressBar.visibleProperty().bind(task.runningProperty());
+//        progressBar.setVisible(true);
     }
 
     private void hideProgressBar() {
-        progressBar.setVisible(false);
+//        progressBar.setVisible(false);
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
     }
