@@ -1,8 +1,8 @@
 package com.ebook.fx.core.model;
 
+import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
@@ -15,13 +15,12 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 
     @Override
     public Date convertToDatabaseColumn(LocalDate date) {
-        Instant instant = Instant.from(date);
-        return Date.from(instant);
+        return Date.valueOf(date == null ? LocalDate.now() : date);
     }
 
     @Override
     public LocalDate convertToEntityAttribute(Date value) {
-        Instant instant = value.toInstant();
+        Instant instant = value == null ? Instant.now() : value.toInstant();
         return LocalDate.from(instant);
     }
 }

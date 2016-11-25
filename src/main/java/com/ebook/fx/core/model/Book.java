@@ -17,11 +17,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 /**
  *
@@ -94,7 +91,7 @@ public class Book {
         this.pages.set(pages);
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     public List<String> getTags() {
         return this.tags.get();
     }
@@ -138,7 +135,7 @@ public class Book {
         this.fileLength.set(fileLength);
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     public List<String> getContents() {
         return this.contents.get();
     }

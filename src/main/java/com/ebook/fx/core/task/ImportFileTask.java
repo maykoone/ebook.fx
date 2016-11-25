@@ -1,7 +1,6 @@
 package com.ebook.fx.core.task;
 
 import com.ebook.fx.core.model.Book;
-import com.ebook.fx.core.services.BookRepository;
 import com.sun.pdfview.OutlineNode;
 import com.sun.pdfview.PDFFile;
 import java.io.File;

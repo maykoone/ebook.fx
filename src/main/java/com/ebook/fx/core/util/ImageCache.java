@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import javax.annotation.PreDestroy;
@@ -46,6 +47,7 @@ public class ImageCache {
 
     @PreDestroy
     public void clear() {
+        Logger.getLogger(ImageCache.class.getName()).info("Destroy imagecache.");
         cachedImages.clear();
         if (!imageLoadExecutor.isShutdown()) {
             imageLoadExecutor.shutdown();

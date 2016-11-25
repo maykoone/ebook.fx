@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -70,7 +71,7 @@ public class MainController {
     private Logger logger;
     @Inject
     private BookRepository repository;
-    
+
     @FXML
     private void initialize() {
         books = FXCollections.observableArrayList();
@@ -81,6 +82,19 @@ public class MainController {
         progressBar.setVisible(false);
         initBooksTable();
         this.books.addAll(repository.list());
+        
+        //setup search
+        FilteredList<Book> filteredBooks = new FilteredList<>(books);
+        this.searchBox.textProperty().addListener((observable, oldValue, newValue) ->{
+            filteredBooks.setPredicate(book -> {
+                if(newValue == null || newValue.isEmpty())
+                    return true;
+                else {
+                    return book.getTitle().toLowerCase().contains(newValue.toLowerCase());
+                }
+            });
+        });
+        booksTable.setItems(filteredBooks);
 
     }
 
@@ -112,7 +126,7 @@ public class MainController {
                 bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
             }
         });
-        booksTable.setItems(this.books);
+//        booksTable.setItems(this.books);
     }
 
     @FXML

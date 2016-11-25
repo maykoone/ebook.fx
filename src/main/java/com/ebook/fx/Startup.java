@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx;
 
 import java.util.logging.Level;
@@ -24,9 +19,8 @@ public class Startup extends Application {
     @Override
     public void init() throws Exception {
         LOGGER.log(Level.INFO, "msg.application.init");
+        /* Scan only the MainApp class package recursively */
         weld = new Weld().disableDiscovery()
-                //                .packages(MainApp.class, MainController.class,
-                //                        MainView.class, FXMLLoaderProducer.class, ImageCache.class)
                 .addPackage(true, MainApp.class);
     }
 
@@ -40,7 +34,6 @@ public class Startup extends Application {
     @Override
     public void stop() throws Exception {
         LOGGER.log(Level.INFO, "msg.application.stop");
-//        ImageCache.getInstance().clear();
         weld.shutdown();
     }
 
