@@ -37,7 +37,7 @@
                     <MenuItem mnemonicParsing="false" onAction="#importFolder" text="%menu.import.folder" />
                         <MenuItem mnemonicParsing="false" onAction="#importFile" text="%menu.import.file" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" text="%menu.close" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="%menu.help">
@@ -61,7 +61,7 @@
                <children>
                   <ImageView fx:id="bookCover" fitHeight="386.0" fitWidth="252.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@default_cover.jpg" />
+                        <Image url="@cover.jpg" />
                      </image>
                   </ImageView>
                   <Separator prefWidth="200.0" />

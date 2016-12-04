@@ -71,6 +71,7 @@ public abstract class AbstractView {
     public void show(Stage stage) {
         Scene scene = new Scene(this.getView());
         scene.getStylesheets().add(application.getDefaultStyle());
+        scene.getStylesheets().add("https://fonts.googleapis.com/css?family=Roboto+Condensed");
 
         if (bundle != null) {
             stage.setTitle(bundle.getString(viewName.toLowerCase() + ".title"));

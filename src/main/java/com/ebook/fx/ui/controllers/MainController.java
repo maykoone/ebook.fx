@@ -21,6 +21,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -94,7 +95,9 @@ public class MainController {
                 }
             });
         });
-        booksTable.setItems(filteredBooks);
+        SortedList<Book> sortedBooks = new SortedList<>(filteredBooks);
+        sortedBooks.comparatorProperty().bind(booksTable.comparatorProperty());
+        booksTable.setItems(sortedBooks);
 
     }
 

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.ui.views;
 
 import java.awt.print.Book;
@@ -35,12 +30,13 @@ public class DecimalFormattedTabelCellFactory implements Callback<TableColumn<Bo
                 if (item == getItem()) {
                     return;
                 }
+                super.updateItem(item, empty);
 
-                super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                 if (item != null) {
                     setText(format.format(item));
+                } else {
+                    setText(null);
                 }
-
             }
 
         };
