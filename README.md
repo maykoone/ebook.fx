@@ -1,5 +1,5 @@
 # Ebook.fx
-Simple application built with JavaFX that helps me to manage my ebook library (only pdf's), maybe it can be useful to someone.
+Simple application built with JavaFX that helps me to manage my ebook library (only pdf's), maybe it can be useful to someone. This is a development version, i'm still working on it.
 ![](screen/ebookfx.png)
 ![](screen/ebookfx1.png)
 
