@@ -83,14 +83,14 @@ public class MainController {
         progressBar.setVisible(false);
         initBooksTable();
         this.books.addAll(repository.list());
-        
+
         //setup search
         FilteredList<Book> filteredBooks = new FilteredList<>(books);
-        this.searchBox.textProperty().addListener((observable, oldValue, newValue) ->{
+        this.searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredBooks.setPredicate(book -> {
-                if(newValue == null || newValue.isEmpty())
+                if (newValue == null || newValue.isEmpty()) {
                     return true;
-                else {
+                } else {
                     return book.getTitle().toLowerCase().contains(newValue.toLowerCase());
                 }
             });
@@ -122,7 +122,12 @@ public class MainController {
         booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
             if (newValue != null) {
                 if (newValue.getFilePath() != null) {
-                    imageCache.getAsync(newValue.getFilePath()).thenAcceptAsync(bookCover::setImage);
+                    imageCache.getAsync(newValue.getFilePath())
+                            .exceptionally(ex -> {
+                                logger.info("Fail to load image. Returning default.");
+                                return LoadPdfCoverImageCommand.defaultImage;
+                            })
+                            .thenAcceptAsync(bookCover::setImage);
                 } else {
                     bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
                 }

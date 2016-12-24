@@ -8,8 +8,8 @@
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
       <!--<property name="javax.persistence.jdbc.user" value="app"/>-->
       <!--<property name="javax.persistence.jdbc.password" value="app"/>-->
-      <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
-      <property name="eclipselink.logging.level.sql" value="FINE"/>
+      <property name="javax.persistence.schema-generation.database.action" value="none"/>
+      <property name="eclipselink.logging.level.sql" value="SEVERE"/>
     </properties>
   </persistence-unit>
 </persistence>
