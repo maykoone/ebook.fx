@@ -7,12 +7,14 @@ import com.ebook.fx.core.model.Book;
 import com.ebook.fx.core.services.BookRepository;
 import com.ebook.fx.core.task.ImportFileTask;
 import com.ebook.fx.core.util.ImageCache;
+import com.ebook.fx.preferences.PreferencesUtil;
 import com.ebook.fx.ui.views.MainView;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -72,6 +74,8 @@ public class MainController {
     private Logger logger;
     @Inject
     private BookRepository repository;
+    @Inject
+    private PreferencesUtil prefs;
 
     @FXML
     private void initialize() {
@@ -140,10 +144,11 @@ public class MainController {
     @FXML
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        chooser.setInitialDirectory(new File(prefs.get(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, System.getProperty("user.home"))));
         File directory = chooser.showDialog(application.getPrimaryStage());
 
         if (directory != null) {
+            prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, directory.getAbsolutePath());
             //only pdf
             ImportFileTask importTask = new ImportFileTask(directory, book -> repository.save(book));
 
@@ -165,12 +170,12 @@ public class MainController {
     @FXML
     private void importFile(ActionEvent event) {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        chooser.setInitialDirectory(new File(prefs.get(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, System.getProperty("user.home"))));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
-        File file = chooser.showOpenDialog(application.getPrimaryStage());
+        List<File> files = chooser.showOpenMultipleDialog(application.getPrimaryStage());
 
-        if (file != null) {
-            ImportFileTask task = new ImportFileTask(file, book -> repository.save(book));
+        if (files != null) {
+            ImportFileTask task = new ImportFileTask(files, book -> repository.save(book));
             task.setOnSucceeded(e -> {
                 books.addAll(task.getValue());
                 hideProgressBar();

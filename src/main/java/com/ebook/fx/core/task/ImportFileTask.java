@@ -42,6 +42,13 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
         this.save = save;
         prepare();
     }
+    
+    public ImportFileTask(List<File> files, Function<Book, Book> save){
+        this.save = save;
+        this.numberOfFiles = files.size();
+        this.filesToImport = files.stream();
+        this.sourceFile = null;
+    }
 
     @Override
     protected ObservableList<Book> call() throws Exception {
