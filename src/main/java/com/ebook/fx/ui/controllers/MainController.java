@@ -174,7 +174,8 @@ public class MainController {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
         List<File> files = chooser.showOpenMultipleDialog(application.getPrimaryStage());
 
-        if (files != null) {
+        if (files != null && !files.isEmpty()) {
+            prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, files.get(0).getParent());
             ImportFileTask task = new ImportFileTask(files, book -> repository.save(book));
             task.setOnSucceeded(e -> {
                 books.addAll(task.getValue());
