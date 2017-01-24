@@ -3,7 +3,7 @@ Simple application built with JavaFX that helps me to manage my ebook library (o
 ![](screen/ebookfx.png)
 ![](screen/ebookfx1.png)
 
-## Main techonologies used
+## Main technologies used
 * Java FX 8
 * CDI (Weld SE)
 * JPA 2
