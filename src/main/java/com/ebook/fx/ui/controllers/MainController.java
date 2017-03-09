@@ -17,8 +17,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -95,7 +97,8 @@ public class MainController {
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
                 } else {
-                    return book.getTitle().toLowerCase().contains(newValue.toLowerCase());
+                    return book.getTitle().toLowerCase().contains(newValue.toLowerCase())
+                            || book.getTags().stream().anyMatch(tag -> tag.toLowerCase().contains(newValue.toLowerCase()));
                 }
             });
         });
@@ -110,6 +113,7 @@ public class MainController {
         mEdit.setOnAction(e -> {
             editBookAction();
         });
+
         MenuItem mOpen = new MenuItem(resources.getString("label.open"));
         mOpen.setOnAction(e -> {
             EventQueue.invokeLater(() -> {
@@ -120,7 +124,12 @@ public class MainController {
                 }
             });
         });
-        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen);
+        MenuItem mRemove = new MenuItem(resources.getString("label.remove"));
+        mRemove.setOnAction(e -> {
+            removeBookAction();
+        });
+
+        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove);
         booksTable.setContextMenu(tableMenu);
 
         booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
@@ -225,6 +234,25 @@ public class MainController {
 
     public void setApplication(MainApp application) {
         this.application = application;
+    }
+
+    private void removeBookAction() {
+        Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
+        if (selectedBook != null) {
+            Optional<ButtonType> confirmation = application.showConfirmationDialog(resources.getString("dialog.remove.book.title"),
+                    MessageFormat.format(resources.getString("dialog.remove.book.msg"), selectedBook.getTitle()));
+
+            confirmation.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
+                CompletableFuture.runAsync(() -> repository.remove(selectedBook))
+                        .thenAcceptAsync(v -> {
+                            Platform.runLater(() -> {
+                                books.remove(selectedBook);
+                                booksTable.refresh();
+                            });
+                        });
+            });
+
+        }
     }
 
 }

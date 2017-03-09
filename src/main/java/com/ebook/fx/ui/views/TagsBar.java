@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.ui.views;
 
 import javafx.collections.FXCollections;
@@ -23,16 +18,17 @@ public class TagsBar extends FlowPane {
     private ObservableList<String> tags;
     private static final String DEFAULT_STYLE_CLASS = "tags-bar";
     private static final String DEFAULT_PROMPT_TEXT = "Add a tag...";
+    private TextField tagsInput;
 
     public TagsBar(ObservableList<String> tags) {
         this.tags = tags;
 
-        getStyleClass().addAll(DEFAULT_STYLE_CLASS);
+        this.getStyleClass().addAll(DEFAULT_STYLE_CLASS);
 
-        TextField tagsInput = new TextField();
+        tagsInput = new TextField();
         tagsInput.setPromptText(DEFAULT_PROMPT_TEXT);
         tagsInput.setOnKeyPressed(evt -> {
-            if (evt.getCode() == KeyCode.TAB) {
+            if (evt.getCode() == KeyCode.TAB || evt.getCode() == KeyCode.SEMICOLON) {
                 String text = tagsInput.getText();
                 if (!text.isEmpty()) {
                     addTag(text);
@@ -41,8 +37,8 @@ public class TagsBar extends FlowPane {
                 tagsInput.requestFocus();
             }
         });
-        setTags(tags);
-        getChildren().add(tagsInput);
+        this.setTags(tags);
+        this.getChildren().add(tagsInput);
     }
 
     public TagsBar() {

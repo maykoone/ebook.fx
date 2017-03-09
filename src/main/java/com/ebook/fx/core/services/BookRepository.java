@@ -44,6 +44,13 @@ public class BookRepository {
         transaction.commit();
         return book;
     }
+    
+    public void remove(Book book){
+        this.transaction.begin();
+        logger.info("remove " + book);
+        entityManager.remove(book);
+        this.transaction.commit();
+    }
 
     public List<Book> list() {
         CriteriaQuery<Book> cq = entityManager.getCriteriaBuilder().createQuery(Book.class);
