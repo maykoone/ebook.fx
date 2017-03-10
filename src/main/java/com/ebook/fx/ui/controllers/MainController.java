@@ -18,13 +18,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
@@ -82,30 +83,35 @@ public class MainController {
     @FXML
     private void initialize() {
         books = FXCollections.observableArrayList();
-        navigationList.setItems(FXCollections.observableArrayList(resources.getString("menu.library"),
-                resources.getString("menu.favorites")));
-        navigationList.getSelectionModel().select(resources.getString("menu.library"));
 
         progressBar.setVisible(false);
         initBooksTable();
         this.books.addAll(repository.list());
 
         //setup search
-        FilteredList<Book> filteredBooks = new FilteredList<>(books);
+        booksTable.setItems(filterAndSortBooks(Predicates.forMenuLibrary()));
         this.searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredBooks.setPredicate(book -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                } else {
-                    return book.getTitle().toLowerCase().contains(newValue.toLowerCase())
-                            || book.getTags().stream().anyMatch(tag -> tag.toLowerCase().contains(newValue.toLowerCase()));
-                }
-            });
+            booksTable.setItems(filterAndSortBooks(Predicates.forSearch(newValue)));
         });
-        SortedList<Book> sortedBooks = new SortedList<>(filteredBooks);
-        sortedBooks.comparatorProperty().bind(booksTable.comparatorProperty());
-        booksTable.setItems(sortedBooks);
 
+        //Navigation List
+        navigationList.setItems(FXCollections.observableArrayList(resources.getString("menu.library"),
+                resources.getString("menu.favorites")));
+        navigationList.getSelectionModel().select(resources.getString("menu.library"));
+        navigationList.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (resources.getString("menu.library").equals(newValue)) {
+                booksTable.setItems(filterAndSortBooks(Predicates.forMenuLibrary().and(Predicates.forSearch(searchBox.getText()))));
+            } else if (resources.getString("menu.favorites").equals(newValue)) {
+                booksTable.setItems(filterAndSortBooks(Predicates.forMenuFavorites()));
+            }
+        });
+
+    }
+
+    private SortedList<Book> filterAndSortBooks(Predicate<Book> predicate) {
+        SortedList<Book> sorted = books.filtered(predicate).sorted();
+        sorted.comparatorProperty().bind(booksTable.comparatorProperty());
+        return sorted;
     }
 
     private void initBooksTable() {
@@ -129,7 +135,10 @@ public class MainController {
             removeBookAction();
         });
 
-        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove);
+        MenuItem mAddFavorite = new MenuItem(resources.getString("label.addfavorite"));
+        mAddFavorite.setOnAction(e -> addToFavorites());
+
+        ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove, mAddFavorite);
         booksTable.setContextMenu(tableMenu);
 
         booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
@@ -145,11 +154,15 @@ public class MainController {
                     bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
                 }
                 bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
+                mAddFavorite.setDisable(newValue.isFavorite());
             }
         });
 //        booksTable.setItems(this.books);
     }
 
+    /*
+    *   ACTIONS /////////////////////
+     */
     @FXML
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
@@ -252,6 +265,14 @@ public class MainController {
                         });
             });
 
+        }
+    }
+
+    private void addToFavorites() {
+        Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
+        if (selectedBook != null) {
+            selectedBook.setFavorite(true);
+            repository.save(selectedBook);
         }
     }
 

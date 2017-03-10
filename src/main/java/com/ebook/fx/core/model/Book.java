@@ -4,10 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -38,6 +40,7 @@ public class Book {
     private StringProperty filePath;
     private DoubleProperty fileLength;
     private ListProperty<String> contents;
+    private BooleanProperty favorite;
 
     public Book() {
         this.id = new SimpleStringProperty(UUID.randomUUID().toString());
@@ -50,6 +53,7 @@ public class Book {
         this.filePath = new SimpleStringProperty();
         this.fileLength = new SimpleDoubleProperty();
         this.contents = new SimpleListProperty<>(FXCollections.observableArrayList());
+        this.favorite = new SimpleBooleanProperty(false);
     }
 
     public Book(String title, String author) {
@@ -144,6 +148,18 @@ public class Book {
         this.contents.set(FXCollections.observableArrayList(contents));
     }
 
+    public BooleanProperty favoriteProperty() {
+        return favorite;
+    }
+
+    public boolean isFavorite() {
+        return this.favorite.get();
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite.set(favorite);
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -171,9 +187,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book{" + "id=" + id + ", title=" + title + ", author=" + author + '}';
+        return "Book{" + "id=" + id.get() + ", title=" + title.get() + ", author=" + author.get() + '}';
     }
-    
-    
 
 }
