@@ -22,7 +22,6 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -136,7 +135,7 @@ public class MainController {
         });
 
         MenuItem mAddFavorite = new MenuItem(resources.getString("label.addfavorite"));
-        mAddFavorite.setOnAction(e -> addToFavorites());
+        mAddFavorite.setOnAction(e -> toggleFavoriteBookAction());
 
         ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove, mAddFavorite);
         booksTable.setContextMenu(tableMenu);
@@ -154,10 +153,9 @@ public class MainController {
                     bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
                 }
                 bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
-                mAddFavorite.setDisable(newValue.isFavorite());
+                mAddFavorite.setText(newValue.isFavorite() ? resources.getString("label.removefavorite") : resources.getString("label.addfavorite"));
             }
         });
-//        booksTable.setItems(this.books);
     }
 
     /*
@@ -258,21 +256,21 @@ public class MainController {
             confirmation.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
                 CompletableFuture.runAsync(() -> repository.remove(selectedBook))
                         .thenAcceptAsync(v -> {
-                            Platform.runLater(() -> {
-                                books.remove(selectedBook);
-                                booksTable.refresh();
-                            });
-                        });
+                            books.remove(selectedBook);
+                            booksTable.refresh();
+                        }, Platform::runLater);
             });
 
         }
     }
 
-    private void addToFavorites() {
+    private void toggleFavoriteBookAction() {
         Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
         if (selectedBook != null) {
-            selectedBook.setFavorite(true);
-            repository.save(selectedBook);
+            selectedBook.setFavorite(!selectedBook.isFavorite());
+            CompletableFuture.runAsync(() -> repository.save(selectedBook))
+                    .thenAcceptAsync(v -> booksTable.refresh(), Platform::runLater);
+
         }
     }
 

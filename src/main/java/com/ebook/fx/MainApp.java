@@ -4,6 +4,7 @@ import com.ebook.fx.ui.views.MainView;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +21,7 @@ public class MainApp {
 
     public void start(@Observes Stage stage) throws Exception {
         this.primaryStage = stage;
+        this.primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
         view.show();
     }
 
