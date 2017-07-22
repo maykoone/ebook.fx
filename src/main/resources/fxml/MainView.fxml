@@ -75,7 +75,7 @@
    <center>
       <AnchorPane BorderPane.alignment="CENTER">
          <children>
-            <SplitPane dividerPositions="0.2" prefHeight="710.0" prefWidth="980.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <SplitPane dividerPositions="0.1" prefHeight="710.0" prefWidth="980.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <items>
                   <AnchorPane>
                      <children>

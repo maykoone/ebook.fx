@@ -67,7 +67,9 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
 
             PDFFile pdf = new PDFFile(buf);
             Book book
-                    = new Book(Optional.ofNullable(pdf.getStringMetadata("Title")).filter(s -> !s.isEmpty()).orElse(file.getName().replace(".pdf", "")),
+                    = new Book(Optional.ofNullable(pdf.getStringMetadata("Title"))
+                                .filter(s -> !s.isEmpty())
+                                .orElse(file.getName().replace(".pdf", "")),
                             pdf.getStringMetadata("Author"));
 
             book.setFileLength((double) file.length() / 1048576);
@@ -82,7 +84,8 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
                 while (e.hasMoreElements()) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
                     if (node.getLevel() == 1) {
-                        book.getContents().add(node.toString());
+                        String content = node.toString();
+                        book.getContents().add(content.substring(0, Integer.min(content.length(), 60)));
                     }
                 }
             }
