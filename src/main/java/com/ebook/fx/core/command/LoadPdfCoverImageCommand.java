@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.core.command;
 
 import com.ebook.fx.MainApp;
@@ -22,6 +17,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javax.swing.ImageIcon;
@@ -33,6 +29,7 @@ import javax.swing.ImageIcon;
 public class LoadPdfCoverImageCommand {
 
     private File pdfFile;
+    private static final Logger LOGGER = Logger.getLogger(LoadPdfCoverImageCommand.class.getName());
 
     public static final Image defaultImage;
 
@@ -41,7 +38,7 @@ public class LoadPdfCoverImageCommand {
         try {
             image = new Image(MainApp.class.getResource("/cover.png").toExternalForm());
         } catch (Exception e) {
-            e.printStackTrace();
+           LOGGER.warning("Fail to load default image cover. Details: " + e.getMessage());
             image = null;
         }
         defaultImage = image;
@@ -56,8 +53,7 @@ public class LoadPdfCoverImageCommand {
     }
 
     public Image get() {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(pdfFile, "r");
+        try(RandomAccessFile raf = new RandomAccessFile(pdfFile, "r")) {
             FileChannel fc = raf.getChannel();
             ByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
@@ -71,7 +67,7 @@ public class LoadPdfCoverImageCommand {
             java.awt.Image image = page.getImage((int) width, (int) height, bBox, null, true, true);
             return SwingFXUtils.toFXImage(toBufferedImage(image), null);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warning("Fail to load image cover. Details: " + e.getMessage());
             return defaultImage;
         }
 
@@ -82,11 +78,11 @@ public class LoadPdfCoverImageCommand {
             return (BufferedImage) image;
         }
         // This code ensures that all the pixels in the image are loaded
-        image = new ImageIcon(image).getImage();
+        java.awt.Image loadedImage = new ImageIcon(image).getImage();
         // Determine if the image has transparent pixels; for this method's
         // implementation, see e661 Determining If an Image Has Transparent
         // Pixels
-        boolean hasAlpha = hasAlpha(image);
+        boolean hasAlpha = hasAlpha(loadedImage);
         // Create a buffered image with a format that's compatible with the
         // screen
         BufferedImage bimage = null;
@@ -100,7 +96,7 @@ public class LoadPdfCoverImageCommand {
             // Create the buffered image
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            bimage = gc.createCompatibleImage(image.getWidth(null), image.getHeight(null), transparency);
+            bimage = gc.createCompatibleImage(loadedImage.getWidth(null), loadedImage.getHeight(null), transparency);
         } catch (HeadlessException e) {
             // The system does not have a screen
         }
@@ -110,12 +106,12 @@ public class LoadPdfCoverImageCommand {
             if (hasAlpha) {
                 type = BufferedImage.TYPE_INT_ARGB;
             }
-            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+            bimage = new BufferedImage(loadedImage.getWidth(null), loadedImage.getHeight(null), type);
         }
         // Copy image to buffered image
         Graphics g = bimage.createGraphics();
         // Paint the image onto the buffered image
-        g.drawImage(image, 0, 0, null);
+        g.drawImage(loadedImage, 0, 0, null);
         g.dispose();
         return bimage;
     }
@@ -132,6 +128,7 @@ public class LoadPdfCoverImageCommand {
         try {
             pg.grabPixels();
         } catch (InterruptedException e) {
+            //nothing to do here
         }
         // Get the image's color model
         ColorModel cm = pg.getColorModel();

@@ -81,11 +81,6 @@ public class TagsBar extends FlowPane {
     }
 
     public void setTags(ObservableList<String> tags) {
-        tags.forEach(tag -> addTag(tag));
+        tags.forEach(this::addTag);
     }
-//
-//    static class Tag {
-//        private String text;
-//    }
-
 }

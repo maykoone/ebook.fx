@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ebook.fx.ui.controllers;
 
 import com.ebook.fx.core.model.Book;
@@ -67,12 +62,12 @@ public class BookEditController extends AbstractController {
         editedBook.setPublisher(publisherField.getText());
         editedBook.setTags(tagsField.getTags());
         this.currentBook.set(editedBook);
-        view.getCurrentStage().close();
+        view.getStageView().close();
     }
 
     @FXML
     private void handleCancel() {
-        view.getCurrentStage().close();
+        view.getStageView().close();
     }
 
     public ObjectProperty<Book> currentBookProperty() {

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
@@ -23,6 +24,7 @@ public class ImageCache {
 
     private Map<String, Image> cachedImages;
     private ExecutorService imageLoadExecutor;
+    private static final Logger LOGGER = Logger.getLogger(ImageCache.class.getName());
 
     public ImageCache() {
         this.cachedImages = new ConcurrentHashMap<>();
@@ -42,7 +44,12 @@ public class ImageCache {
     }
 
     public CompletableFuture<Image> getAsync(String url) {
-        return CompletableFuture.supplyAsync(() -> imageSupplier.apply(url));
+        return CompletableFuture
+                .supplyAsync(() -> imageSupplier.apply(url))
+                .exceptionally(ex -> {
+                    LOGGER.log(Level.INFO, "Returning default image due to fail to load. Details: {}", ex.getMessage());
+                    return LoadPdfCoverImageCommand.defaultImage;
+                });
     }
 
     @PreDestroy
@@ -54,12 +61,8 @@ public class ImageCache {
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        clear();
-    }
-
     private Function<String, Image> imageSupplier = (String url) -> {
+        Objects.requireNonNull(url);
         Image image = cachedImages.get(url);
         if (image == null) {
             LoadPdfCoverImageCommand command = new LoadPdfCoverImageCommand(url);

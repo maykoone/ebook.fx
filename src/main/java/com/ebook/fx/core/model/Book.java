@@ -101,9 +101,7 @@ public class Book {
     }
 
     public void setTags(List<String> tags) {
-        if (tags != null) {
-            this.tags.set(FXCollections.observableArrayList(tags));
-        }
+        this.tags.set(FXCollections.observableArrayList(tags));
     }
 
     public String getPublisher() {

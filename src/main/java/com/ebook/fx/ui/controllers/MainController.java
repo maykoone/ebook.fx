@@ -1,8 +1,6 @@
 package com.ebook.fx.ui.controllers;
 
-import com.ebook.fx.MainApp;
 import com.ebook.fx.ui.views.BookEditView;
-import com.ebook.fx.core.command.LoadPdfCoverImageCommand;
 import com.ebook.fx.core.model.Book;
 import com.ebook.fx.core.services.BookRepository;
 import com.ebook.fx.core.task.ImportFileTask;
@@ -22,7 +20,6 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
@@ -42,6 +39,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
+import static com.ebook.fx.ui.controllers.Predicates.*;
 
 /**
  *
@@ -67,8 +66,6 @@ public class MainController {
     @Inject
     private MainView view;
     @Inject
-    private MainApp application;
-    @Inject
     private ImageCache imageCache;
     @FXML
     private ResourceBundle resources;
@@ -78,6 +75,9 @@ public class MainController {
     private BookRepository repository;
     @Inject
     private PreferencesUtil prefs;
+    
+    private static final String MENU_FAVORITES = "menu.favorites";
+    private static final String MENU_LIBRARY = "menu.library";
 
     @FXML
     private void initialize() {
@@ -88,21 +88,28 @@ public class MainController {
         this.books.addAll(repository.list());
 
         //setup search
-        booksTable.setItems(filterAndSortBooks(Predicates.forMenuLibrary()));
-        this.searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            booksTable.setItems(filterAndSortBooks(Predicates.forSearch(newValue)));
-        });
+        booksTable.setItems(filterAndSortBooks(forMenuLibrary()));
+        this.searchBox.textProperty().addListener((observable, oldValue, newValue) ->
+            booksTable.setItems(filterAndSortBooks(forSearch(newValue)))
+        );
 
         //Navigation List
-        navigationList.setItems(FXCollections.observableArrayList(resources.getString("menu.library"),
-                resources.getString("menu.favorites")));
-        navigationList.getSelectionModel().select(resources.getString("menu.library"));
-        navigationList.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (resources.getString("menu.library").equals(newValue)) {
-                booksTable.setItems(filterAndSortBooks(Predicates.forMenuLibrary().and(Predicates.forSearch(searchBox.getText()))));
-            } else if (resources.getString("menu.favorites").equals(newValue)) {
-                booksTable.setItems(filterAndSortBooks(Predicates.forMenuFavorites()));
+        navigationList.setItems(
+            FXCollections.observableArrayList(
+                resources.getString(MENU_LIBRARY),
+                resources.getString(MENU_FAVORITES)
+            ));
+        
+        navigationList.getSelectionModel().select(resources.getString(MENU_LIBRARY));
+        
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            
+            if (resources.getString(MENU_LIBRARY).equals(newValue)) {
+                booksTable.setItems(filterAndSortBooks(forMenuLibrary().and(forSearch(searchBox.getText()))));
+            } else if (resources.getString(MENU_FAVORITES).equals(newValue)) {
+                booksTable.setItems(filterAndSortBooks(forMenuFavorites()));
             }
+            
         });
 
     }
@@ -115,24 +122,20 @@ public class MainController {
 
     private void initBooksTable() {
         MenuItem mEdit = new MenuItem(resources.getString("label.edit"));
-        mEdit.setOnAction(e -> {
-            editBookAction();
-        });
+        mEdit.setOnAction(e -> editBookAction());
 
         MenuItem mOpen = new MenuItem(resources.getString("label.open"));
-        mOpen.setOnAction(e -> {
+        mOpen.setOnAction(e ->
             EventQueue.invokeLater(() -> {
                 try {
                     Desktop.getDesktop().open(new File(booksTable.getSelectionModel().getSelectedItem().getFilePath()));
                 } catch (IOException ex) {
                     logger.log(Level.SEVERE, "Open file fail.", ex);
                 }
-            });
-        });
+            })
+        );
         MenuItem mRemove = new MenuItem(resources.getString("label.remove"));
-        mRemove.setOnAction(e -> {
-            removeBookAction();
-        });
+        mRemove.setOnAction(e -> removeBookAction());
 
         MenuItem mAddFavorite = new MenuItem(resources.getString("label.addfavorite"));
         mAddFavorite.setOnAction(e -> toggleFavoriteBookAction());
@@ -140,21 +143,15 @@ public class MainController {
         ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove, mAddFavorite);
         booksTable.setContextMenu(tableMenu);
 
-        booksTable.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Book> observable, Book oldValue, Book newValue) -> {
-            if (newValue != null) {
-                if (newValue.getFilePath() != null) {
-                    imageCache.getAsync(newValue.getFilePath())
-                            .exceptionally(ex -> {
-                                logger.info("Fail to load image. Returning default.");
-                                return LoadPdfCoverImageCommand.defaultImage;
-                            })
-                            .thenAcceptAsync(bookCover::setImage);
-                } else {
-                    bookCover.setImage(LoadPdfCoverImageCommand.defaultImage);
-                }
-                bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
-                mAddFavorite.setText(newValue.isFavorite() ? resources.getString("label.removefavorite") : resources.getString("label.addfavorite"));
-            }
+        booksTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) 
+                return;
+                        
+            imageCache.getAsync(newValue.getFilePath())
+                    .thenAcceptAsync(bookCover::setImage);
+            
+            bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
+            mAddFavorite.setText(newValue.isFavorite() ? resources.getString("label.removefavorite") : resources.getString("label.addfavorite"));
         });
     }
 
@@ -165,14 +162,14 @@ public class MainController {
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setInitialDirectory(new File(prefs.get(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, System.getProperty("user.home"))));
-        File directory = chooser.showDialog(application.getPrimaryStage());
+        File directory = chooser.showDialog(view.getStageView());
 
         if (directory != null) {
             prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, directory.getAbsolutePath());
             //only pdf
             ImportFileTask importTask = new ImportFileTask(directory, book -> repository.save(book));
 
-            Optional<ButtonType> option = application.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
+            Optional<ButtonType> option = view.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
                     MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
             option.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
                 logger.log(Level.INFO, "Perform import");
@@ -192,7 +189,7 @@ public class MainController {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(new File(prefs.get(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, System.getProperty("user.home"))));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
-        List<File> files = chooser.showOpenMultipleDialog(application.getPrimaryStage());
+        List<File> files = chooser.showOpenMultipleDialog(view.getStageView());
 
         if (files != null && !files.isEmpty()) {
             prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, files.get(0).getParent());
@@ -227,39 +224,34 @@ public class MainController {
                     booksTable.refresh();
                 }
             });
-            bookEditView.show();
+            bookEditView.show(view.getStageView());
         }
     }
 
     private void showProgressBar(Worker<?> task) {
         progressBar.progressProperty().bind(task.progressProperty());
         progressBar.visibleProperty().bind(task.runningProperty());
-//        progressBar.setVisible(true);
     }
 
     private void hideProgressBar() {
-//        progressBar.setVisible(false);
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
-    }
-
-    public void setApplication(MainApp application) {
-        this.application = application;
     }
 
     private void removeBookAction() {
         Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
         if (selectedBook != null) {
-            Optional<ButtonType> confirmation = application.showConfirmationDialog(resources.getString("dialog.remove.book.title"),
+            Optional<ButtonType> confirmation = view.showConfirmationDialog(resources.getString("dialog.remove.book.title"),
                     MessageFormat.format(resources.getString("dialog.remove.book.msg"), selectedBook.getTitle()));
 
-            confirmation.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
-                CompletableFuture.runAsync(() -> repository.remove(selectedBook))
+            confirmation.filter(button -> button.equals(ButtonType.OK)).ifPresent(button ->
+                CompletableFuture
+                        .runAsync(() -> repository.remove(selectedBook))
                         .thenAcceptAsync(v -> {
                             books.remove(selectedBook);
                             booksTable.refresh();
-                        }, Platform::runLater);
-            });
+                        }, Platform::runLater)
+            );
 
         }
     }

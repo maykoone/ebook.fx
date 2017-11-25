@@ -47,7 +47,7 @@ public class BookRepository {
     
     public void remove(Book book){
         this.transaction.begin();
-        logger.info("remove " + book);
+        logger.log(Level.INFO, "remove {}", book);
         entityManager.remove(book);
         this.transaction.commit();
     }

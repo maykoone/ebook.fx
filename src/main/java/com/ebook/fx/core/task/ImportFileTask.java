@@ -8,12 +8,12 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.collections.FXCollections;
@@ -30,7 +30,6 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     private final File sourceFile;
     private final AtomicLong progressCount = new AtomicLong();
     private long numberOfFiles;
-    private Pattern ptrn = Pattern.compile("([^\\s]+(\\.(?i)(pdf))$)");
     private Stream<File> filesToImport;
 
     public ImportFileTask(File sourceFile) {
@@ -60,8 +59,7 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     private Function<Book, Book> save;
 
     private Book convertToBook(File file) {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(file, "r");
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")){
             FileChannel fc = raf.getChannel();
             ByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
@@ -103,7 +101,6 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     }
 
     private boolean filterFile(File file) {
-//        return ptrn.matcher(file.getName()).matches();
         return file.getName().toLowerCase().endsWith(".pdf");
     }
 
@@ -123,11 +120,11 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     }
 
     private List<String> parseTags(String keywords) {
-        if (keywords == null || keywords.isEmpty()) {
-            return null;
+        List<String> tagsList = new ArrayList<>();
+        if (keywords != null && !keywords.isEmpty()) {
+            tagsList = Stream.of(keywords.split(",")).map(t -> t.trim()).collect(Collectors.toList());
         }
-        String[] tags = keywords.split(",");
-        return Stream.of(tags).map(t -> t.trim()).collect(Collectors.toList());
+        return tagsList;
     }
 
 }
