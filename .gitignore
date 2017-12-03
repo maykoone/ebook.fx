@@ -1,4 +1,11 @@
 /data/
 /derby.log
 /target/
-/nbproject/
+
+nbproject/
+build/
+nbbuild/
+dist/
+nb-configuration.xml
+nbactions.xml
+
