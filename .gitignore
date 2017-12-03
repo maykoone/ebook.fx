@@ -1,3 +1,11 @@
 /data/
 /derby.log
 /target/
+
+#Netbeans files
+nbproject/
+build/
+nbbuild/
+dist/
+nb-configuration.xml
+nbactions.xml
