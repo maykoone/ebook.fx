@@ -4,7 +4,7 @@
 
     <groupId>com.ebook.fx</groupId>
     <artifactId>ebook.fx</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
 
     <name>ebook.fx</name>
@@ -18,7 +18,7 @@
         <connection>scm:git:git@github.com:maykoone/ebook.fx</connection>
         <developerConnection>scm:git:git@github.com:maykoone/ebook.fx</developerConnection>
         <url>https://github.com/maykoone/ebook.fx</url>
-        <tag>@{project.version}</tag>
+        <tag>0.2</tag>
     </scm>
 
     <organization>
