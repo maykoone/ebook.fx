@@ -207,7 +207,7 @@ public class MainController {
     private void aboutAction(ActionEvent event) {
         Alert about = new Alert(Alert.AlertType.INFORMATION);
         about.setTitle(resources.getString("dialog.about.title"));
-        about.setContentText(resources.getString("dialog.about.msg"));
+        about.setContentText(MessageFormat.format(resources.getString("dialog.about.msg"), resources.getString("app.version")));
         about.showAndWait();
     }
 
