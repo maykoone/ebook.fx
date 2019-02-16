@@ -29,11 +29,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -41,6 +38,10 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import static com.ebook.fx.ui.controllers.Predicates.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import org.controlsfx.control.StatusBar;
+import org.controlsfx.control.textfield.CustomTextField;
 
 /**
  *
@@ -52,15 +53,11 @@ public class MainController {
     private TableView<Book> booksTable;
     private ObservableList<Book> books;
     @FXML
-    private ListView<String> navigationList;
-    @FXML
-    private TextField searchBox;
-    @FXML
-    private ListView<String> bookIndexList;
+    private CustomTextField searchBox;
     @FXML
     private ImageView bookCover;
     @FXML
-    private ProgressBar progressBar;
+    private StatusBar statusBar;
     @Inject
     private Instance<BookEditView> bookEditViewSource;
     @Inject
@@ -69,6 +66,12 @@ public class MainController {
     private ImageCache imageCache;
     @FXML
     private ResourceBundle resources;
+    @FXML
+    private Label labelTitle;
+    @FXML
+    private Label labelAuthor;
+    @FXML
+    private Button btnOpen;
     @Inject
     private Logger logger;
     @Inject
@@ -83,7 +86,7 @@ public class MainController {
     private void initialize() {
         books = FXCollections.observableArrayList();
 
-        progressBar.setVisible(false);
+        statusBar.setVisible(false);
         initBooksTable();
         this.books.addAll(repository.list());
 
@@ -92,26 +95,6 @@ public class MainController {
         this.searchBox.textProperty().addListener((observable, oldValue, newValue) ->
             booksTable.setItems(filterAndSortBooks(forSearch(newValue)))
         );
-
-        //Navigation List
-        navigationList.setItems(
-            FXCollections.observableArrayList(
-                resources.getString(MENU_LIBRARY),
-                resources.getString(MENU_FAVORITES)
-            ));
-        
-        navigationList.getSelectionModel().select(resources.getString(MENU_LIBRARY));
-        
-        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            
-            if (resources.getString(MENU_LIBRARY).equals(newValue)) {
-                booksTable.setItems(filterAndSortBooks(forMenuLibrary().and(forSearch(searchBox.getText()))));
-            } else if (resources.getString(MENU_FAVORITES).equals(newValue)) {
-                booksTable.setItems(filterAndSortBooks(forMenuFavorites()));
-            }
-            
-        });
-
     }
 
     private SortedList<Book> filterAndSortBooks(Predicate<Book> predicate) {
@@ -125,15 +108,7 @@ public class MainController {
         mEdit.setOnAction(e -> editBookAction());
 
         MenuItem mOpen = new MenuItem(resources.getString("label.open"));
-        mOpen.setOnAction(e ->
-            EventQueue.invokeLater(() -> {
-                try {
-                    Desktop.getDesktop().open(new File(booksTable.getSelectionModel().getSelectedItem().getFilePath()));
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, "Open file fail.", ex);
-                }
-            })
-        );
+        mOpen.setOnAction(e -> openBook());
         MenuItem mRemove = new MenuItem(resources.getString("label.remove"));
         mRemove.setOnAction(e -> removeBookAction());
 
@@ -150,14 +125,29 @@ public class MainController {
             imageCache.getAsync(newValue.getFilePath())
                     .thenAcceptAsync(bookCover::setImage);
             
-            bookIndexList.setItems(FXCollections.observableArrayList(newValue.getContents()));
-            mAddFavorite.setText(newValue.isFavorite() ? resources.getString("label.removefavorite") : resources.getString("label.addfavorite"));
+            labelTitle.setText(newValue.getTitle());
+            labelAuthor.setText("por " + newValue.getAuthor());
+            btnOpen.setVisible(true);
+            
+            mAddFavorite.setText(newValue.isFavorite() 
+                    ? resources.getString("label.removefavorite") 
+                    : resources.getString("label.addfavorite"));
         });
     }
 
     /*
     *   ACTIONS /////////////////////
      */
+    @FXML
+    private void openBook() {
+        EventQueue.invokeLater(() -> {
+                try {
+                    Desktop.getDesktop().open(new File(booksTable.getSelectionModel().getSelectedItem().getFilePath()));
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Open file fail.", ex);
+                }
+            });
+    }
     @FXML
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
@@ -191,16 +181,22 @@ public class MainController {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
         List<File> files = chooser.showOpenMultipleDialog(view.getStageView());
 
-        if (files != null && !files.isEmpty()) {
-            prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, files.get(0).getParent());
-            ImportFileTask task = new ImportFileTask(files, book -> repository.save(book));
-            task.setOnSucceeded(e -> {
-                books.addAll(task.getValue());
-                hideProgressBar();
-            });
-            showProgressBar(task);
-            new Thread(task).start();
-        }
+        if (files == null || files.isEmpty())
+            return;
+        
+        prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, files.get(0).getParent());
+        ImportFileTask task = new ImportFileTask(files, book -> repository.save(book));
+        task.setOnSucceeded(e -> {
+            books.addAll(task.getValue());
+            hideProgressBar();
+        });
+        task.setOnFailed(e -> {
+            logger.log(Level.SEVERE, "Failed to import file", task.getException());
+        });
+        showProgressBar(task);
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
     }
 
     @FXML
@@ -214,28 +210,43 @@ public class MainController {
     @FXML
     private void editBookAction() {
         Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
-        if (selectedBook != null) {
-            BookEditView bookEditView = bookEditViewSource.get();
-            BookEditController bookEditController = bookEditView.getController();
-            bookEditController.selectedBookProperty().bind(booksTable.getSelectionModel().selectedItemProperty());
-            bookEditController.currentBookProperty().addListener((observable, oldBook, newBook) -> {
-                if (newBook != null) {
+        if (selectedBook == null)
+            return;
+            
+        BookEditView bookEditView = bookEditViewSource.get();
+        BookEditController bookEditController = bookEditView.getController();
+        bookEditController.selectedBookProperty().bind(booksTable.getSelectionModel().selectedItemProperty());
+        bookEditController
+                .currentBookProperty()
+                .addListener((observable, oldBook, newBook) -> {
+                    if (newBook == null) return;
                     repository.save(newBook);
                     booksTable.refresh();
-                }
-            });
-            bookEditView.show(view.getStageView());
-        }
+                });
+        bookEditView.show(view.getStageView());
+
+    }
+    
+    @FXML
+    private void listLibrary(ActionEvent event) {
+        logger.info("List library");
+        booksTable.setItems(filterAndSortBooks(forMenuLibrary().and(forSearch(searchBox.getText()))));
+    }
+    
+    @FXML
+    private void listFavorites(ActionEvent event) {
+        logger.info("List Favorites");
+        booksTable.setItems(filterAndSortBooks(forMenuFavorites()));
     }
 
     private void showProgressBar(Worker<?> task) {
-        progressBar.progressProperty().bind(task.progressProperty());
-        progressBar.visibleProperty().bind(task.runningProperty());
+        statusBar.progressProperty().bind(task.progressProperty());
+        statusBar.visibleProperty().bind(task.runningProperty());
     }
 
     private void hideProgressBar() {
-        progressBar.progressProperty().unbind();
-        progressBar.setProgress(0);
+        statusBar.progressProperty().unbind();
+        statusBar.setProgress(0);
     }
 
     private void removeBookAction() {

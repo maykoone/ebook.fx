@@ -42,7 +42,7 @@
                       <TagsBar fx:id="tagsField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   </children>
               </GridPane>
-            <ImageView fx:id="bookCover" fitHeight="579.0" fitWidth="378.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bookCover" styleClass="book-cover" fitHeight="579.0" fitWidth="378.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@cover.png" />
                </image>
@@ -53,8 +53,8 @@
         
         <ButtonBar AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
             <buttons>
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="%button.save"/>
                 <Button mnemonicParsing="false" onAction="#handleCancel" prefWidth="120.0" text="%button.cancel" cancelButton="true" />
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="%button.save"/>
             </buttons>
         </ButtonBar>
     </children>
