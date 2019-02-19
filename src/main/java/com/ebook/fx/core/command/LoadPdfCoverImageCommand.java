@@ -4,6 +4,7 @@ import com.ebook.fx.MainApp;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -29,6 +31,7 @@ import javax.swing.ImageIcon;
 public class LoadPdfCoverImageCommand {
 
     private File pdfFile;
+    private float scale;
     private static final Logger LOGGER = Logger.getLogger(LoadPdfCoverImageCommand.class.getName());
 
     public static final Image defaultImage;
@@ -38,18 +41,19 @@ public class LoadPdfCoverImageCommand {
         try {
             image = new Image(MainApp.class.getResource("/cover.png").toExternalForm());
         } catch (Exception e) {
-           LOGGER.warning("Fail to load default image cover. Details: " + e.getMessage());
-            image = null;
+           LOGGER.log(Level.WARNING, "Fail to load default image cover. Details: {0}", e.getMessage());
+           image = null;
         }
         defaultImage = image;
     }
 
-    public LoadPdfCoverImageCommand(File pdfFile) {
-        this.pdfFile = pdfFile;
+    public LoadPdfCoverImageCommand(String url, float scale) {
+        this.pdfFile = new File(url);
+        this.scale = scale;
     }
 
     public LoadPdfCoverImageCommand(String url) {
-        this.pdfFile = new File(url);
+        this(url, 1.0f);
     }
 
     public Image get() {
@@ -65,9 +69,10 @@ public class LoadPdfCoverImageCommand {
             double height = Math.abs(bBox.getHeight());
 
             java.awt.Image image = page.getImage((int) width, (int) height, bBox, null, true, true);
-            return SwingFXUtils.toFXImage(toBufferedImage(image), null);
+            final BufferedImage bfImage = toBufferedImage(image);
+            return SwingFXUtils.toFXImage(resize(bfImage, (int) (width*scale), (int) (height*scale)), null);
         } catch (Exception e) {
-            LOGGER.warning("Fail to load image cover. Details: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Fail to load image cover. Details: {0}", e.getMessage());
             return defaultImage;
         }
 
@@ -133,5 +138,13 @@ public class LoadPdfCoverImageCommand {
         // Get the image's color model
         ColorModel cm = pg.getColorModel();
         return cm.hasAlpha();
+    }
+    
+    private BufferedImage resize(BufferedImage image, int width, int height) {
+        BufferedImage resized = new BufferedImage(width, height, image.getType());
+        Graphics2D graphics = resized.createGraphics();
+        graphics.drawImage(image, 0, 0, width, height, null);
+        graphics.dispose();
+        return resized;
     }
 }

@@ -92,7 +92,6 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
             fc.close();
             return book;
         } catch (Exception e) {
-//            System.out.println("Falha ao importar pdf " + file.getName());
             Book book = new Book(file.getName().replace(".pdf", ""), "");
             book.setFilePath(file.getAbsolutePath());
             book.setFileLength((double) file.length() / 1048576);
