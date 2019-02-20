@@ -78,7 +78,7 @@ public class MainController {
     private BookRepository repository;
     @Inject
     private PreferencesUtil prefs;
-    
+
     private static final String MENU_FAVORITES = "menu.favorites";
     private static final String MENU_LIBRARY = "menu.library";
 
@@ -118,21 +118,22 @@ public class MainController {
         ContextMenu tableMenu = new ContextMenu(mEdit, mOpen, mRemove, mAddFavorite);
         booksTable.setContextMenu(tableMenu);
 
-        booksTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null) 
-                return;
-                        
-            imageCache.getAsync(newValue.getFilePath())
-                    .thenAcceptAsync(bookCover::setImage);
-            
-            labelTitle.setText(newValue.getTitle());
-            labelAuthor.setText("por " + newValue.getAuthor());
-            btnOpen.setVisible(true);
-            
-            mAddFavorite.setText(newValue.isFavorite() 
-                    ? resources.getString("label.removefavorite") 
-                    : resources.getString("label.addfavorite"));
-        });
+        booksTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    if (newValue == null) 
+                        return;
+
+                    imageCache.getAsync(newValue.getFilePath())
+                            .thenAcceptAsync(bookCover::setImage);
+
+                    labelTitle.setText(newValue.getTitle());
+                    labelAuthor.setText("por " + newValue.getAuthor());
+                    btnOpen.setVisible(true);
+
+                    mAddFavorite.setText(newValue.isFavorite() 
+                            ? resources.getString("label.removefavorite") 
+                            : resources.getString("label.addfavorite"));
+                });
     }
 
     /*
@@ -148,30 +149,35 @@ public class MainController {
                 }
             });
     }
+
     @FXML
     private void importFolder(ActionEvent event) {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setInitialDirectory(new File(prefs.get(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, System.getProperty("user.home"))));
         File directory = chooser.showDialog(view.getStageView());
 
-        if (directory != null) {
-            prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, directory.getAbsolutePath());
-            //only pdf
-            ImportFileTask importTask = new ImportFileTask(directory, book -> repository.save(book));
+        if (directory == null)
+            return;
 
-            Optional<ButtonType> option = view.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
-                    MessageFormat.format(resources.getString("dialog.import.folder.msg"), importTask.getNumberOfFiles()));
-            option.filter(button -> button.equals(ButtonType.OK)).ifPresent(button -> {
-                logger.log(Level.INFO, "Perform import");
-                importTask.setOnSucceeded(e -> {
-                    books.addAll(importTask.getValue());
-                    hideProgressBar();
-                });
-                showProgressBar(importTask);
-                new Thread(importTask).start();
-            });
-        }
+        prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, directory.getAbsolutePath());
+        //only pdf
+        ImportFileTask importTask = new ImportFileTask(directory, book -> repository.save(book));
 
+        Optional<ButtonType> option = 
+                view.showConfirmationDialog(resources.getString("dialog.import.folder.title"),
+                                            MessageFormat.format(resources.getString("dialog.import.folder.msg"),
+                                                                 importTask.getNumberOfFiles()));
+
+        option.filter(button -> button.equals(ButtonType.OK))
+              .ifPresent(button -> {
+                            logger.log(Level.INFO, "Perform import");
+                            importTask.setOnSucceeded(e -> {
+                                books.addAll(importTask.getValue());
+                                hideProgressBar();
+                            });
+                            showProgressBar(importTask);
+                            new Thread(importTask).start();
+                        });
     }
 
     @FXML
@@ -183,7 +189,7 @@ public class MainController {
 
         if (files == null || files.isEmpty())
             return;
-        
+
         prefs.set(PreferencesUtil.LAST_OPEN_DIRECTORY_PREF, files.get(0).getParent());
         ImportFileTask task = new ImportFileTask(files, book -> repository.save(book));
         task.setOnSucceeded(e -> {
@@ -212,7 +218,7 @@ public class MainController {
         Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
         if (selectedBook == null)
             return;
-            
+
         BookEditView bookEditView = bookEditViewSource.get();
         BookEditController bookEditController = bookEditView.getController();
         bookEditController.selectedBookProperty().bind(booksTable.getSelectionModel().selectedItemProperty());
@@ -224,18 +230,15 @@ public class MainController {
                     booksTable.refresh();
                 });
         bookEditView.show(view.getStageView());
-
     }
-    
+
     @FXML
     private void listLibrary(ActionEvent event) {
-        logger.info("List library");
         booksTable.setItems(filterAndSortBooks(forMenuLibrary().and(forSearch(searchBox.getText()))));
     }
-    
+
     @FXML
     private void listFavorites(ActionEvent event) {
-        logger.info("List Favorites");
         booksTable.setItems(filterAndSortBooks(forMenuFavorites()));
     }
 
@@ -255,15 +258,14 @@ public class MainController {
             Optional<ButtonType> confirmation = view.showConfirmationDialog(resources.getString("dialog.remove.book.title"),
                     MessageFormat.format(resources.getString("dialog.remove.book.msg"), selectedBook.getTitle()));
 
-            confirmation.filter(button -> button.equals(ButtonType.OK)).ifPresent(button ->
-                CompletableFuture
-                        .runAsync(() -> repository.remove(selectedBook))
-                        .thenAcceptAsync(v -> {
-                            books.remove(selectedBook);
-                            booksTable.refresh();
-                        }, Platform::runLater)
-            );
-
+            confirmation.filter(button -> button.equals(ButtonType.OK))
+                        .ifPresent(button ->
+                            CompletableFuture
+                                    .runAsync(() -> repository.remove(selectedBook))
+                                    .thenAcceptAsync(v -> {
+                                        books.remove(selectedBook);
+                                        booksTable.refresh();
+                                    }, Platform::runLater));
         }
     }
 

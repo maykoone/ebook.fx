@@ -56,5 +56,4 @@ public class BookRepository {
         CriteriaQuery<Book> cq = entityManager.getCriteriaBuilder().createQuery(Book.class);
         return entityManager.createQuery(cq.select(cq.from(Book.class))).getResultList();
     }
-
 }
