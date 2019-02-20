@@ -41,14 +41,6 @@
                    <fx:reference source="toolbarGroup" />
                </toggleGroup>
             </ToggleButton>
-            <ToggleButton fx:id="btnBookshield" layoutX="10.0" layoutY="74.0" mnemonicParsing="false">
-               <graphic>
-                  <FontAwesomeIconView glyphName="BOOKMARK" />
-               </graphic>
-               <toggleGroup>
-                   <fx:reference source="toolbarGroup" />
-               </toggleGroup>
-            </ToggleButton>
         </items>
       </ToolBar>
       <AnchorPane layoutX="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -75,7 +67,7 @@
                            <children>
                               <Label fx:id="labelTitle" styleClass="title-details" />
                               <Label fx:id="labelAuthor" styleClass="author-details" />
-                              <Button fx:id="btnOpen" mnemonicParsing="false" text="Abrir" visible="false" onAction="#openBook" />
+                              <Button fx:id="btnOpen" mnemonicParsing="false" text="%label.open" visible="false" onAction="#openBook"/>
                            </children>
                         </VBox>
                      </children>
@@ -121,6 +113,9 @@
                               </TableColumn>
                               <TableColumn resizable="true" text="%label.book.publisher">
                                   <cellValueFactory><PropertyValueFactory property="publisher" /></cellValueFactory>
+                              </TableColumn>
+                              <TableColumn fx:id="pages" text="%label.book.pages">
+                                <cellValueFactory><PropertyValueFactory property="pages" /></cellValueFactory>
                               </TableColumn>
                               <TableColumn resizable="true" text="%label.book.added">
                                   <cellValueFactory><PropertyValueFactory property="added" /></cellValueFactory>
