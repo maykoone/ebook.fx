@@ -17,7 +17,7 @@ public class PersistenceContextProducer {
     @Produces
     @ApplicationScoped
     public EntityManagerFactory produceFactory() {
-        return Persistence.createEntityManagerFactory("com.ebook.fx");
+        return Persistence.createEntityManagerFactory("com.ebook.fx.hibernate");
     }
 
     public void closeFactory(@Disposes EntityManagerFactory emf, Logger logger) {

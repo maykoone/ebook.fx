@@ -1,9 +1,13 @@
 package com.ebook.fx.core.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -28,7 +32,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "book")
-public class Book {
+public class Book implements Serializable {
 
     private StringProperty id;
     private StringProperty title;
@@ -112,7 +116,6 @@ public class Book {
         this.publisher.set(publisher);
     }
 
-//    @Temporal(TemporalType.DATE)
     public LocalDate getAdded() {
         return this.added.get();
     }
@@ -156,6 +159,14 @@ public class Book {
 
     public void setFavorite(boolean favorite) {
         this.favorite.set(favorite);
+    }
+
+    public void parseTags(String keywords) {
+        List<String> tagsList = new ArrayList<>();
+        if (keywords != null && !keywords.isEmpty()) {
+            tagsList = Stream.of(keywords.split(",")).map(t -> t.trim()).collect(Collectors.toList());
+        }
+        setTags(tagsList);
     }
 
     @Override
