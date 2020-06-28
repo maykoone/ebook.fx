@@ -8,7 +8,6 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +72,7 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
             book.setFileLength((double) file.length() / 1048576);
             book.setPages(pdf.getNumPages());
             book.setFilePath(file.getAbsolutePath());
-            book.setTags(parseTags(pdf.getStringMetadata("Keywords")));
+            book.parseTags(pdf.getStringMetadata("Keywords"));
             book.setAdded(LocalDate.now());
 
             OutlineNode outline = pdf.getOutline();
@@ -117,13 +116,4 @@ public class ImportFileTask extends Task<ObservableList<Book>> {
     public long getNumberOfFiles() {
         return numberOfFiles;
     }
-
-    private List<String> parseTags(String keywords) {
-        List<String> tagsList = new ArrayList<>();
-        if (keywords != null && !keywords.isEmpty()) {
-            tagsList = Stream.of(keywords.split(",")).map(t -> t.trim()).collect(Collectors.toList());
-        }
-        return tagsList;
-    }
-
 }

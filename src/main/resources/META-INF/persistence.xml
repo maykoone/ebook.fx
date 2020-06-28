@@ -12,4 +12,16 @@
       <property name="eclipselink.logging.level.sql" value="SEVERE"/>
     </properties>
   </persistence-unit>
+  
+  <persistence-unit name="com.ebook.fx.hibernate" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <class>com.ebook.fx.core.model.Book</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby:data;create=true"/>
+      <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+      <!--<property name="javax.persistence.jdbc.user" value="app"/>-->
+      <!--<property name="javax.persistence.jdbc.password" value="app"/>-->
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+    </properties>
+  </persistence-unit>
 </persistence>
