@@ -4,7 +4,7 @@ Simple application built with JavaFX that helps me to manage my ebook library (o
 ![](screen/ebookfx1.png)
 
 ## Main technologies used
-* Java FX 8
+* Java FX 11
 * CDI (Weld SE)
 * JPA 2
 
@@ -21,7 +21,7 @@ mvn clean install
 git clone http://github.com/maykoone/ebook.fx
 cd ebook.fx
 mvc clean package
-java -jar target/*.jar
+java -jar target/*runnable.jar
 ```
 The application will store the information in the data folder, this can be changed in the
 [Persistence.xml](src/main/resources/META-INF/persistence.xml)
